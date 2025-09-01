@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cricket Performance Analyzer</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏏</text></svg>">
+  <!-- Import Fredoka One for main heading, Montserrat for subheadings, Open Sans for body -->
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Montserrat:wght@600&family=Open+Sans&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Cricket Performance Analyzer</h1>
+      <p class="subtitle">Using StrikeRate and Boundary Metrics</p>
+    </header>
+
+    <main>
+      <section class="card" id="player-input-section">
+        <h2>Add New Player Data</h2>
+        <form id="player-form">
+          <div class="form-group">
+            <input type="text" id="player-name" placeholder="Player Name" required pattern="^[^\d]+$" title="Name cannot contain numbers" />
+            <input type="number" id="runs" placeholder="Runs" required min="0" />
+          </div>
+          <div class="form-group">
+            <input type="number" id="fours" placeholder="Fours" min="0" />
+            <input type="number" id="sixes" placeholder="Sixes" min="0" />
+          </div>
+          <div class="form-group">
+            <input type="number" id="balls" placeholder="Balls Faced" required min="0" />
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Add Player</button>
+            <button type="button" class="btn btn-secondary" onclick="document.getElementById('csv-input').click()">Import CSV</button>
+            <input type="file" id="csv-input" accept=".csv" style="display:none" />
+          </div>
+          <div class="message" id="message"></div>
+        </form>
+      </section>
+
+      <section class="card" id="player-data-section">
+        <h2>Player Statistics</h2>
+        <div class="table-controls">
+          <input type="text" id="search-box" placeholder="Search by player name..." />
+          <div class="sort-buttons">
+            <span>Sort by:</span>
+            <button class="btn btn-sort" data-sort="name">Name</button>
+            <button class="btn btn-sort" data-sort="runs">Runs</button>
+            <button class="btn btn-sort" data-sort="strikeRate">Strike Rate</button>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Player</th>
+                <th>Runs</th>
+                <th>Fours</th>
+                <th>Sixes</th>
+                <th>Balls</th>
+                <th>Strike Rate</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="scorecard-body"></tbody>
+          </table>
+        </div>
+        <div id="total">Total Runs: 0</div>
+        <div class="table-actions">
+          <button class="btn btn-danger" onclick="clearAll()">Clear All Data</button>
+          <button class="btn btn-success" onclick="downloadCSV()">Download CSV</button>
+        </div>
+      </section>
+
+      <section class="card" id="ai-section">
+        <h2>Ask the Analyzer</h2>
+        <input
+          type="text"
+          id="ai-input"
+          placeholder="e.g., 'Show Virat Kohli stats', 'Who has the best strike rate', 'Total runs scored'"
+        />
+        <div id="ai-response" class="message ai-message"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
