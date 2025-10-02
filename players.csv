@@ -1,20 +1,51 @@
-Virat Kohli,75,8,2,50
-Rohit Sharma,102,12,4,70
-MS Dhoni,65,5,3,40
-Sachin Tendulkar,89,10,1,60
-AB de Villiers,120,15,6,80
-Chris Gayle,95,9,5,55
-Kane Williamson,70,7,2,48
-Steve Smith,55,6,1,45
-Babar Azam,85,9,2,52
-Joe Root,60,4,1,38
-Shikhar Dhawan,78,8,2,53
-David Warner,110,14,3,75
-KL Rahul,68,6,2,50
-Rashid Khan,45,3,1,30
-Ben Stokes,88,10,3,65
-Jasprit Bumrah,20,1,0,15
-Yuvraj Singh,90,11,4,60
-Hardik Pandya,77,7,3,50
-Faf du Plessis,82,8,2,55
-Shreyas Iyer,63,5,2,48
+Name,Runs,Balls,Fours,Sixes,Match Type,Team
+Virat Kohli,82,51,6,3,T20,India
+Rohit Sharma,118,59,12,4,T20,India
+KL Rahul,68,45,8,1,T20,India
+Suryakumar Yadav,76,47,5,4,T20,India
+Hardik Pandya,47,25,2,3,T20,India
+Ravindra Jadeja,34,18,2,2,T20,India
+Rishabh Pant,52,31,4,2,T20,India
+Dinesh Karthik,29,16,3,0,T20,India
+Bhuvneshwar Kumar,12,11,1,0,T20,India
+Jasprit Bumrah,8,7,0,0,T20,India
+Mohammed Shami,6,4,0,0,T20,India
+Kane Williamson,78,48,8,2,T20,New Zealand
+Martin Guptill,63,39,7,1,T20,New Zealand
+Ross Taylor,50,35,4,1,T20,New Zealand
+Glenn Phillips,45,28,3,2,T20,New Zealand
+Daryl Mitchell,31,19,3,0,T20,New Zealand
+Tim Seifert,28,17,2,1,T20,New Zealand
+Lockie Ferguson,18,12,1,1,T20,New Zealand
+Trent Boult,11,9,1,0,T20,New Zealand
+Adam Milne,15,10,1,1,T20,New Zealand
+Devon Conway,99,56,9,3,T20,New Zealand
+Joe Root,89,52,6,3,T20,England
+Jos Buttler,80,44,6,3,T20,England
+Jason Roy,71,41,6,2,T20,England
+Ben Stokes,52,30,3,2,T20,England
+Moeen Ali,39,24,3,1,T20,England
+Sam Curran,26,16,1,1,T20,England
+Adil Rashid,18,13,1,0,T20,England
+Chris Woakes,22,15,1,1,T20,England
+Jos Buttler,116,53,11,4,T20,England
+David Warner,89,54,7,2,T20,Australia
+Steve Smith,77,48,6,3,T20,Australia
+Glenn Maxwell,70,38,4,4,T20,Australia
+Marcus Stoinis,53,31,3,2,T20,Australia
+Alex Carey,46,27,3,2,T20,Australia
+Mitchell Marsh,41,24,2,2,T20,Australia
+Pat Cummins,18,11,1,1,T20,Australia
+Josh Hazlewood,8,7,0,0,T20,Australia
+Adam Zampa,4,3,0,0,T20,Australia
+David Miller,101,52,7,4,T20,South Africa
+Quinton de Kock,74,45,6,2,T20,South Africa
+Rassie van der Dussen,67,42,5,2,T20,South Africa
+Aiden Markram,54,35,4,1,T20,South Africa
+Kagiso Rabada,15,9,1,0,T20,South Africa
+Anrich Nortje,12,8,1,0,T20,South Africa
+Lungi Ngidi,10,7,0,0,T20,South Africa
+Wayne Parnell,22,14,1,1,T20,South Africa
+Babar Azam,94,56,8,2,T20,Pakistan
+Mohammad Rizwan,89,55,6,3,T20,Pakistan
+Shoaib Malik,45,28,3,1,T20,Pakistan

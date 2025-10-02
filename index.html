@@ -1,92 +1,327 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cricket Performance Analyzer</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏏</text></svg>">
-  <!-- Import Fredoka One for main heading, Montserrat for subheadings, Open Sans for body -->
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Montserrat:wght@600&family=Open+Sans&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cricket Performance Analyzer Pro</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css  ">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script.js" defer></script>
 </head>
 <body>
+  <div class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+    <i class="fas fa-moon"></i>
+    <i class="fas fa-sun"></i>
+  </div>
+
   <div class="container">
     <header>
-      <h1>Cricket Performance Analyzer</h1>
-      <p class="subtitle">Using StrikeRate and Boundary Metrics</p>
+      <div class="logo">
+        <i class="fas fa-cricket" aria-hidden="true"></i>
+        <h1>Cricket Performance Analyzer Pro</h1>
+      </div>
+      <p class="subtitle">Advanced Analytics • Strike Rate • Boundary Metrics • Player Comparisons</p>
     </header>
 
-    <main>
-      <section class="card" id="player-input-section">
-        <h2>Add New Player Data</h2>
-        <form id="player-form">
-          <div class="form-group">
-            <input type="text" id="player-name" placeholder="Player Name" required pattern="^[^\d]+$" title="Name cannot contain numbers" />
-            <input type="number" id="runs" placeholder="Runs" required min="0" />
-          </div>
-          <div class="form-group">
-            <input type="number" id="fours" placeholder="Fours" min="0" />
-            <input type="number" id="sixes" placeholder="Sixes" min="0" />
-          </div>
-          <div class="form-group">
-            <input type="number" id="balls" placeholder="Balls Faced" required min="0" />
-          </div>
-          <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Add Player</button>
-            <button type="button" class="btn btn-secondary" onclick="document.getElementById('csv-input').click()">Import CSV</button>
-            <input type="file" id="csv-input" accept=".csv" style="display:none" />
-          </div>
-          <div class="message" id="message"></div>
-        </form>
-      </section>
+    <div class="tabs">
+      <ul>
+        <li><a href="#dashboard" class="active">Dashboard</a></li>
+        <li><a href="#add-player">Add Player</a></li>
+        <li><a href="#comparison">Comparison</a></li>
+        <li><a href="#statistics">Statistics</a></li>
+        <li><a href="#analytics">Analytics</a></li>
+        <li><a href="#ai-assistant">AI Assistant</a></li>
+      </ul>
+    </div>
 
-      <section class="card" id="player-data-section">
-        <h2>Player Statistics</h2>
-        <div class="table-controls">
-          <input type="text" id="search-box" placeholder="Search by player name..." />
-          <div class="sort-buttons">
-            <span>Sort by:</span>
-            <button class="btn btn-sort" data-sort="name">Name</button>
-            <button class="btn btn-sort" data-sort="runs">Runs</button>
-            <button class="btn btn-sort" data-sort="strikeRate">Strike Rate</button>
+    <div id="dashboard" class="tab-content">
+      <div class="card">
+        <h2><i class="fas fa-tachometer-alt" aria-hidden="true"></i> Dashboard</h2>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-users" aria-hidden="true"></i></div>
+            <div class="stat-content">
+              <div class="stat-value" id="total-players">0</div>
+              <div class="stat-label">Total Players</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-running" aria-hidden="true"></i></div>
+            <div class="stat-content">
+              <div class="stat-value" id="total-runs">0</div>
+              <div class="stat-label">Total Runs</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-bolt" aria-hidden="true"></i></div>
+            <div class="stat-content">
+              <div class="stat-value" id="avg-strike-rate">0</div>
+              <div class="stat-label">Avg Strike Rate</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-baseball-ball" aria-hidden="true"></i></div>
+            <div class="stat-content">
+              <div class="stat-value" id="total-boundaries">0</div>
+              <div class="stat-label">Total Boundaries</div>
+            </div>
           </div>
         </div>
+      </div>
+    </div>
 
+    <div id="add-player" class="tab-content" style="display: none;">
+      <div class="card">
+        <h2><i class="fas fa-user-plus" aria-hidden="true"></i> Add Player Data</h2>
+        <form id="player-form">
+          <div class="form-grid">
+            <div>
+              <input type="text" id="player-name" placeholder="Player Name" required>
+            </div>
+            <div>
+              <input type="text" id="team" placeholder="Team Name">
+            </div>
+            <div class="number-input-wrapper">
+              <input type="number" id="runs" min="0" placeholder="Runs" required>
+              <div class="number-controls">
+                <span class="number-btn" onclick="incrementValue('runs')">▲</span>
+                <span class="number-btn" onclick="decrementValue('runs')">▼</span>
+              </div>
+            </div>
+            <div class="number-input-wrapper">
+              <input type="number" id="balls" min="0" placeholder="Balls" required>
+              <div class="number-controls">
+                <span class="number-btn" onclick="incrementValue('balls')">▲</span>
+                <span class="number-btn" onclick="decrementValue('balls')">▼</span>
+              </div>
+            </div>
+            <div class="number-input-wrapper">
+              <input type="number" id="fours" min="0" placeholder="Fours">
+              <div class="number-controls">
+                <span class="number-btn" onclick="incrementValue('fours')">▲</span>
+                <span class="number-btn" onclick="decrementValue('fours')">▼</span>
+              </div>
+            </div>
+            <div class="number-input-wrapper">
+              <input type="number" id="sixes" min="0" placeholder="Sixes">
+              <div class="number-controls">
+                <span class="number-btn" onclick="incrementValue('sixes')">▲</span>
+                <span class="number-btn" onclick="decrementValue('sixes')">▼</span>
+              </div>
+            </div>
+            <div>
+              <select id="match-type">
+                <option value="T20">T20</option>
+                <option value="ODI">ODI</option>
+                <option value="Test">Test</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary"><i class="fas fa-plus" aria-hidden="true"></i> Add Player</button>
+            <label class="btn btn-secondary">
+              <i class="fas fa-file-import" aria-hidden="true"></i> Import CSV
+              <input type="file" id="csv-input" accept=".csv" style="display: none;">
+            </label>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="comparison" class="tab-content" style="display: none;">
+      <div class="card">
+        <h2><i class="fas fa-balance-scale" aria-hidden="true"></i> Player Comparison</h2>
+        <div class="comparison-controls">
+          <select id="player1-select" class="comparison-select">
+            <option value="">Select Player 1</option>
+          </select>
+          <span class="vs-text">VS</span>
+          <select id="player2-select" class="comparison-select">
+            <option value="">Select Player 2</option>
+          </select>
+          <button id="compare-btn" class="btn btn-primary" disabled><i class="fas fa-chart-bar" aria-hidden="true"></i> Compare</button>
+        </div>
+        <div id="comparison-chart-container" style="display: none;">
+          <div class="chart-wrapper">
+            <canvas id="comparison-chart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="statistics" class="tab-content" style="display: none;">
+      <div class="card">
+        <div class="section-header">
+          <h2><i class="fas fa-table" aria-hidden="true"></i> Player Statistics</h2>
+          <div class="filters">
+            <select id="match-filter">
+              <option value="all">All Formats</option>
+              <option value="T20">T20</option>
+              <option value="ODI">ODI</option>
+              <option value="Test">Test</option>
+            </select>
+            <select id="team-filter">
+              <option value="all">All Teams</option>
+            </select>
+            <select id="sort-by">
+              <option value="name">Sort by Name</option>
+              <option value="runs">Sort by Runs</option>
+              <option value="strike">Sort by Strike Rate</option>
+              <option value="boundaries">Sort by Boundaries</option>
+            </select>
+            <input type="text" id="search-box" placeholder="Search players...">
+            <button class="btn btn-secondary" id="clear-filters"><i class="fas fa-filter-circle-xmark" aria-hidden="true"></i> Clear</button>
+          </div>
+        </div>
         <div class="table-container">
           <table>
             <thead>
               <tr>
                 <th>Player</th>
+                <th>Type</th>
+                <th>Team</th>
                 <th>Runs</th>
-                <th>Fours</th>
-                <th>Sixes</th>
                 <th>Balls</th>
+                <th>4s</th>
+                <th>6s</th>
                 <th>Strike Rate</th>
+                <th>Boundary %</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody id="scorecard-body"></tbody>
           </table>
         </div>
-        <div id="total">Total Runs: 0</div>
-        <div class="table-actions">
-          <button class="btn btn-danger" onclick="clearAll()">Clear All Data</button>
-          <button class="btn btn-success" onclick="downloadCSV()">Download CSV</button>
+        <div class="form-actions">
+          <button class="btn btn-danger" onclick="clearAll()"><i class="fas fa-trash-alt" aria-hidden="true"></i> Clear All</button>
+          <button class="btn btn-success" onclick="downloadCSV()"><i class="fas fa-file-export" aria-hidden="true"></i> Export CSV</button>
         </div>
-      </section>
+      </div>
+    </div>
 
-      <section class="card" id="ai-section">
-        <h2>Ask the Analyzer</h2>
-        <input
-          type="text"
-          id="ai-input"
-          placeholder="e.g., 'Show Virat Kohli stats', 'Who has the best strike rate', 'Total runs scored'"
-        />
-        <div id="ai-response" class="message ai-message"></div>
-      </section>
-    </main>
+    <div id="analytics" class="tab-content" style="display: none;">
+      <div class="card">
+        <h2><i class="fas fa-chart-pie" aria-hidden="true"></i> Visual Analytics</h2>
+        <div id="no-data-message" class="no-data-message" style="display: none;">
+          <p>No player data available. Add players to see analytics.</p>
+        </div>
+        <div class="chart-grid" id="chart-container">
+          <div class="chart-wrapper">
+            <canvas id="runsChart"></canvas>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="strikeChart"></canvas>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="boundaryChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="ai-assistant" class="tab-content" style="display: none;">
+      <div class="card">
+        <h2><i class="fas fa-robot" aria-hidden="true"></i> AI Performance Assistant</h2>
+        <div class="ai-suggestions">
+          <span class="suggestion-chip" onclick="setAIQuery('Best Strike Rate')">🎯 Best Strike Rate</span>
+          <span class="suggestion-chip" onclick="setAIQuery('Top Scorers')">🏆 Top Scorers</span>
+          <span class="suggestion-chip" onclick="setAIQuery('Average Stats')">📊 Average Stats</span>
+          <span class="suggestion-chip" onclick="setAIQuery('Most Boundaries')">🎪 Most Boundaries</span>
+          <span class="suggestion-chip" onclick="setAIQuery('Compare')">⚔️ Compare Players</span>
+        </div>
+        <div class="ai-input-container">
+          <input type="text" id="ai-input" placeholder="Ask about player stats... (e.g., 'Best Strike Rate' or 'Compare Virat and Rohit')">
+          <button class="btn btn-primary" onclick="handleAI()"><i class="fas fa-search" aria-hidden="true"></i></button>
+        </div>
+        <div class="ai-message" id="ai-response" aria-live="polite">🤖 Ask me about player performance!</div>
+      </div>
+    </div>
   </div>
 
-  <script src="script.js"></script>
+  <div id="edit-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Edit Player</h2>
+        <button class="close-btn" onclick="closeModal()" aria-label="Close modal">×</button>
+      </div>
+      <form id="edit-form">
+        <input type="hidden" id="edit-index">
+        <div class="form-grid">
+          <div>
+            <input type="text" id="edit-name" placeholder="Player Name" required>
+          </div>
+          <div>
+            <input type="text" id="edit-team" placeholder="Team Name">
+          </div>
+          <div class="number-input-wrapper">
+            <input type="number" id="edit-runs" min="0" placeholder="Runs" required>
+            <div class="number-controls">
+              <span class="number-btn" onclick="incrementValue('edit-runs')">▲</span>
+              <span class="number-btn" onclick="decrementValue('edit-runs')">▼</span>
+            </div>
+          </div>
+          <div class="number-input-wrapper">
+            <input type="number" id="edit-balls" min="0" placeholder="Balls" required>
+            <div class="number-controls">
+              <span class="number-btn" onclick="incrementValue('edit-balls')">▲</span>
+              <span class="number-btn" onclick="decrementValue('edit-balls')">▼</span>
+            </div>
+          </div>
+          <div class="number-input-wrapper">
+            <input type="number" id="edit-fours" min="0" placeholder="Fours">
+            <div class="number-controls">
+              <span class="number-btn" onclick="incrementValue('edit-fours')">▲</span>
+              <span class="number-btn" onclick="decrementValue('edit-fours')">▼</span>
+            </div>
+          </div>
+          <div class="number-input-wrapper">
+            <input type="number" id="edit-sixes" min="0" placeholder="Sixes">
+            <div class="number-controls">
+              <span class="number-btn" onclick="incrementValue('edit-sixes')">▲</span>
+              <span class="number-btn" onclick="decrementValue('edit-sixes')">▼</span>
+            </div>
+          </div>
+          <div>
+            <select id="edit-match-type">
+              <option value="T20">T20</option>
+              <option value="ODI">ODI</option>
+              <option value="Test">Test</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-success"><i class="fas fa-save" aria-hidden="true"></i> Save</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal()"><i class="fas fa-times" aria-hidden="true"></i> Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="confirm-dialog" class="confirm-dialog">
+    <div class="confirm-content">
+      <div class="confirm-icon" id="confirm-icon">⚠️</div>
+      <h2 class="confirm-title" id="confirm-title">Confirm Action</h2>
+      <p class="confirm-message" id="confirm-message">Are you sure?</p>
+      <div class="confirm-buttons">
+        <button class="confirm-btn confirm-btn-yes" id="confirm-yes">Yes, Proceed</button>
+        <button class="confirm-btn confirm-btn-no" id="confirm-no">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="error-dialog" class="error-dialog">
+    <div class="error-content">
+      <div class="error-icon">❌</div>
+      <h2 class="error-title">Validation Error</h2>
+      <p class="error-message" id="error-message">An error occurred.</p>
+      <div class="error-buttons">
+        <button class="error-btn error-btn-ok" id="error-ok">OK</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
