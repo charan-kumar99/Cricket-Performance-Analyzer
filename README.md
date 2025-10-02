@@ -53,47 +53,54 @@ cd Cricket-Performance-Analyzer
 
 Open index.html in your browser to start using the application.
 
-🛠 Usage
+---
 
-Add a Player: Use the form to input player statistics.
+## 🛠 Usage
 
-View Statistics: Navigate to the Statistics tab to see player data.
+**Add a Player:** Use the form to input player statistics.
 
-Analyze Performance: Access the Analytics tab for interactive charts.
+**View Statistics:** Navigate to the Statistics tab to see player data.
 
-Compare Players: Use the Comparison tab to compare two players.
+**Analyze Performance:** Access the Analytics tab for interactive charts.
 
-AI Assistant: Ask questions like:
+**Compare Players:** Use the Comparison tab to compare two players.
 
-“Who has the best strike rate?”
+**AI Assistant:** Ask questions like:
 
-“Top 5 run scorers”
+        “Who has the best strike rate?”
 
-“Most boundaries”
+        “Top 5 run scorers”
 
-“Compare [player1] and [player2]”
+        “Most boundaries”
 
-“Team [name] stats”
+        “Compare [player1] and [player2]”
 
-Import/Export Data: Manage player data via CSV files.
+        “Team [name] stats”
 
-Toggle Theme: Switch between light and dark modes.
+**Import/Export Data:** Manage player data via CSV files.
 
-📊 AI Assistant Commands
+**Toggle Theme:** Switch between light and dark modes.
 
-Who has the best strike rate?
+---
 
-Top 5 run scorers
+## 📊 AI Assistant Commands
 
-Average runs
+**Who has the best strike rate?**
 
-Most boundaries
+**Top 5 run scorers**
 
-Compare [player1] and [player2]
+**Average runs**
 
-Team [name] stats
+**Most boundaries**
 
-📂 Project Structure
+**Compare [player1] and [player2]**
+
+**Team [name] stats**
+
+---
+
+## 📂 Project Structure
+```bash
 Cricket-Performance-Analyzer/
 │
 ├── index.html        # Main HTML file
@@ -102,46 +109,47 @@ Cricket-Performance-Analyzer/
 ├── players.csv       # Sample player data
 └── assets/           # Screenshots and images
 
+---
 
-⚙️ Technologies Used
+## ⚙️ Technologies Used
 
-HTML5 – Structure and content of web pages
+**HTML5** – Structure and content of web pages
 
-CSS3 – Styling and layout design
+**CSS3** – Styling and layout design
 
-JavaScript (ES6) – Interactivity and dynamic content
+**JavaScript (ES6)** – Interactivity and dynamic content
 
-Chart.js – Interactive charts for analytics
+**Chart.js** – Interactive charts for analytics
 
-LocalStorage – Persistent player data across sessions
+**LocalStorage** – Persistent player data across sessions
 
 
-🔗 Contributing
+## 🔗 Contributing
 
 Contributions are welcome! To contribute:
 
-Fork the repository.
+1. **Fork the repository.**
 
-Create a new branch:
-
+2. **Create a new branch:**
+```bash
 git checkout -b feature/YourFeature
 
 
-Commit your changes:
-
+3. **Commit your changes:**
+```bash
 git commit -m "Add your feature"
 
 
-Push to the branch:
-
+4. **Push to the branch:**
+```bash
 git push origin feature/YourFeature
 
 
-Open a Pull Request.
+5. **Open a Pull Request.**
 
 
-📬 Contact
+## 📬 Contact
 
-Email: charansuvarna99@gmail.com
+**Email:** charansuvarna99@gmail.com
 
-GitHub: https://github.com/charan-kumar99
+**GitHub:** https://github.com/charan-kumar99
