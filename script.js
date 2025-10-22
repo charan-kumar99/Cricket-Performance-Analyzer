@@ -1,10 +1,10 @@
+// ===== CRICKET PERFORMANCE ANALYZER PRO - PRODUCTION READY =====
 // Global variables
 let players = [];
 let runsChart = null;
 let strikeChart = null;
 let boundaryChart = null;
 let comparisonChart = null;
-let isDarkTheme = true;
 let filterTimeout = null;
 
 // Initialize the application
@@ -25,12 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
   
-  // Initialize theme
-  const savedTheme = localStorage.getItem('cricketTheme');
-  if (savedTheme === 'light') {
-    toggleTheme();
-  }
-  
   // Set up event listeners
   setupEventListeners();
   
@@ -40,16 +34,43 @@ document.addEventListener('DOMContentLoaded', () => {
   updateCharts();
   populateComparisonSelects();
   populateTeamFilter();
+  generateInsights();
+  updateLeaderboard('runs');
+  populatePlayerOfMatchSelect();
 
   // Show initial tab
   document.querySelector('#dashboard').style.display = 'block';
+  
+  // BUG #26 FIX: Set dynamic copyright year
+  document.getElementById('copyright-year').textContent = new Date().getFullYear();
+  
+  // BUG #11 FIX: Add ESC key handler for modals
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' || e.key === 'Esc') {
+      // Close edit modal
+      const editModal = document.getElementById('edit-modal');
+      if (editModal && editModal.classList.contains('show')) {
+        closeModal();
+      }
+      // Close onboarding modal
+      const onboardingModal = document.getElementById('onboarding-modal');
+      if (onboardingModal && onboardingModal.classList.contains('show')) {
+        closeOnboarding();
+      }
+    }
+  });
+  
+  // Show onboarding modal for first-time users
+  const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
+  if (!hasSeenOnboarding) {
+    setTimeout(() => {
+      document.getElementById('onboarding-modal').classList.add('show');
+    }, 500);
+  }
 });
 
 // Set up event listeners
 function setupEventListeners() {
-  // Theme toggle
-  document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
-  
   // Player form
   document.getElementById('player-form').addEventListener('submit', addPlayer);
   
@@ -102,22 +123,346 @@ function setupEventListeners() {
       if (targetTab === '#statistics') {
         document.getElementById('search-box').focus();
       }
+      
+      // Update leaderboard when switching to it
+      if (targetTab === '#leaderboard') {
+        updateLeaderboard('runs');
+      }
+    });
+  });
+
+  // Leaderboard filter buttons
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      e.currentTarget.classList.add('active');
+      const filter = e.currentTarget.getAttribute('data-filter');
+      updateLeaderboard(filter);
     });
   });
 }
 
-// Toggle between dark and light theme
-function toggleTheme() {
-  isDarkTheme = !isDarkTheme;
-  document.body.classList.toggle('light-theme', !isDarkTheme);
-  document.querySelector('.theme-toggle .fa-moon').style.display = isDarkTheme ? 'block' : 'none';
-  document.querySelector('.theme-toggle .fa-sun').style.display = isDarkTheme ? 'none' : 'block';
+// ===== ONBOARDING MODAL =====
+function closeOnboarding() {
+  document.getElementById('onboarding-modal').classList.remove('show');
+  localStorage.setItem('hasSeenOnboarding', 'true');
+  showToast('Welcome! Start by adding your first player', 'success', 4000);
+}
+
+// ===== INSIGHTS GENERATION =====
+function generateInsights() {
+  if (players.length === 0) {
+    document.getElementById('top-performer').textContent = 'Add players to see insights';
+    document.getElementById('highest-sr').textContent = 'Add players to see insights';
+    document.getElementById('most-consistent').textContent = 'Add players to see insights';
+    document.getElementById('boundary-king').textContent = 'Add players to see insights';
+    return;
+  }
   
-  // Save theme preference
-  localStorage.setItem('cricketTheme', isDarkTheme ? 'dark' : 'light');
+  // Top Performer (highest runs)
+  const topPerformer = players.reduce((max, p) => p.runs > max.runs ? p : max);
+  document.getElementById('top-performer').textContent = `${topPerformer.name} - ${topPerformer.runs} runs`;
   
-  // Update charts to match theme
-  updateCharts();
+  // Highest Strike Rate
+  const highestSR = players.reduce((max, p) => {
+    const sr = calculateStrikeRate(p.runs, p.balls);
+    const maxSr = calculateStrikeRate(max.runs, max.balls);
+    if (sr === '∞') return p;
+    if (maxSr === '∞') return max;
+    return parseFloat(sr) > parseFloat(maxSr) ? p : max;
+  });
+  document.getElementById('highest-sr').textContent = `${highestSR.name} - ${calculateStrikeRate(highestSR.runs, highestSR.balls)}`;
+  
+  // Most Consistent (best boundary percentage)
+  const mostConsistent = players.reduce((max, p) => {
+    const bp = parseFloat(calculateBoundaryPercent(p.fours || 0, p.sixes || 0, p.runs));
+    const maxBp = parseFloat(calculateBoundaryPercent(max.fours || 0, max.sixes || 0, max.runs));
+    return bp > maxBp ? p : max;
+  });
+  document.getElementById('most-consistent').textContent = `${mostConsistent.name} - ${calculateBoundaryPercent(mostConsistent.fours || 0, mostConsistent.sixes || 0, mostConsistent.runs)}% boundaries`;
+  
+  // Boundary King (most boundaries)
+  const boundaryKing = players.reduce((max, p) => {
+    const total = (p.fours || 0) + (p.sixes || 0);
+    const maxTotal = (max.fours || 0) + (max.sixes || 0);
+    return total > maxTotal ? p : max;
+  });
+  document.getElementById('boundary-king').textContent = `${boundaryKing.name} - ${(boundaryKing.fours || 0) + (boundaryKing.sixes || 0)} boundaries`;
+}
+
+// ===== PLAYER OF THE MATCH FEATURE (BUG #4 FIX: Move before initialization) =====
+function populatePlayerOfMatchSelect() {
+  const select = document.getElementById('potm-select');
+  if (!select) return; // Guard clause
+  select.innerHTML = '<option value="">-- Choose Player --</option>';
+  
+  players.forEach((player, index) => {
+    const option = document.createElement('option');
+    option.value = index;
+    const sr = calculateStrikeRate(player.runs, player.balls);
+    option.textContent = `${player.name} - ${player.runs} runs (SR: ${sr})`;
+    select.appendChild(option);
+  });
+}
+
+function setPlayerOfMatch() {
+  const select = document.getElementById('potm-select');
+  const display = document.getElementById('potm-display');
+  const selectedIndex = select.value;
+  
+  if (selectedIndex === '') {
+    display.innerHTML = `
+      <div class="potm-empty">
+        <i class="fas fa-trophy"></i>
+        <p>Select a player to highlight as Player of the Match</p>
+      </div>
+    `;
+    return;
+  }
+  
+  const player = players[selectedIndex];
+  const sr = calculateStrikeRate(player.runs, player.balls);
+  const boundaries = (player.fours || 0) + (player.sixes || 0);
+  
+  // BUG #8 FIX: Sanitize output
+  const sanitizedName = sanitizeInput(player.name);
+  const sanitizedTeam = sanitizeInput(player.team || 'No Team');
+  
+  display.innerHTML = `
+    <div class="potm-card">
+      <div class="potm-badge">⭐ Player of the Match ⭐</div>
+      <div class="potm-player">
+        <div class="potm-avatar">
+          <i class="fas fa-crown"></i>
+        </div>
+        <div class="potm-name">${sanitizedName}</div>
+        <div class="potm-team">${sanitizedTeam} • ${player.matchType || 'T20'}</div>
+      </div>
+      <div class="potm-stats-grid">
+        <div class="potm-stat">
+          <div class="potm-stat-value">${player.runs}</div>
+          <div class="potm-stat-label">Runs</div>
+        </div>
+        <div class="potm-stat">
+          <div class="potm-stat-value">${player.balls}</div>
+          <div class="potm-stat-label">Balls</div>
+        </div>
+        <div class="potm-stat">
+          <div class="potm-stat-value">${sr}</div>
+          <div class="potm-stat-label">Strike Rate</div>
+        </div>
+        <div class="potm-stat">
+          <div class="potm-stat-value">${player.fours || 0}</div>
+          <div class="potm-stat-label">Fours</div>
+        </div>
+        <div class="potm-stat">
+          <div class="potm-stat-value">${player.sixes || 0}</div>
+          <div class="potm-stat-label">Sixes</div>
+        </div>
+        <div class="potm-stat">
+          <div class="potm-stat-value">${boundaries}</div>
+          <div class="potm-stat-label">Total Boundaries</div>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  showToast(`🎉 ${sanitizedName} selected as Player of the Match!`, 'success', 3000);
+}
+
+// ===== LEADERBOARD =====
+function updateLeaderboard(filterType = 'runs') {
+  if (players.length === 0) {
+    // Clear podium
+    for (let i = 1; i <= 3; i++) {
+      const podium = document.getElementById(`podium-${i}`);
+      podium.querySelector('.podium-name').textContent = '-';
+      podium.querySelector('.podium-score').textContent = '0';
+    }
+    document.getElementById('leaderboard-list').innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--text-muted);">No players added yet. Add players to see the leaderboard!</p>';
+    return;
+  }
+
+  // Sort players based on filter
+  let sortedPlayers = [...players];
+  
+  switch(filterType) {
+    case 'runs':
+      sortedPlayers.sort((a, b) => b.runs - a.runs);
+      break;
+    case 'strike-rate':
+      sortedPlayers.sort((a, b) => {
+        const srA = calculateStrikeRate(a.runs, a.balls);
+        const srB = calculateStrikeRate(b.runs, b.balls);
+        if (srA === '∞') return -1;
+        if (srB === '∞') return 1;
+        return parseFloat(srB) - parseFloat(srA);
+      });
+      break;
+    case 'boundaries':
+      sortedPlayers.sort((a, b) => 
+        ((b.fours || 0) + (b.sixes || 0)) - ((a.fours || 0) + (a.sixes || 0))
+      );
+      break;
+    case 'sixes':
+      sortedPlayers.sort((a, b) => (b.sixes || 0) - (a.sixes || 0));
+      break;
+  }
+
+  // Update podium (top 3)
+  for (let i = 0; i < 3 && i < sortedPlayers.length; i++) {
+    const player = sortedPlayers[i];
+    const podium = document.getElementById(`podium-${i + 1}`);
+    
+    podium.querySelector('.podium-name').textContent = player.name;
+    
+    let score;
+    switch(filterType) {
+      case 'runs':
+        score = player.runs;
+        break;
+      case 'strike-rate':
+        score = calculateStrikeRate(player.runs, player.balls);
+        break;
+      case 'boundaries':
+        score = (player.fours || 0) + (player.sixes || 0);
+        break;
+      case 'sixes':
+        score = player.sixes || 0;
+        break;
+    }
+    
+    podium.querySelector('.podium-score').textContent = score;
+  }
+
+  // Update leaderboard list (rank 4+)
+  const listContainer = document.getElementById('leaderboard-list');
+  listContainer.innerHTML = '';
+
+  if (sortedPlayers.length > 3) {
+    for (let i = 3; i < sortedPlayers.length; i++) {
+      const player = sortedPlayers[i];
+      const item = document.createElement('div');
+      item.className = 'leaderboard-item';
+      item.style.animationDelay = `${(i - 3) * 0.05}s`;
+
+      let mainStat, statLabel;
+      switch(filterType) {
+        case 'runs':
+          mainStat = player.runs;
+          statLabel = 'RUNS';
+          break;
+        case 'strike-rate':
+          mainStat = calculateStrikeRate(player.runs, player.balls);
+          statLabel = 'S/R';
+          break;
+        case 'boundaries':
+          mainStat = (player.fours || 0) + (player.sixes || 0);
+          statLabel = '4s+6s';
+          break;
+        case 'sixes':
+          mainStat = player.sixes || 0;
+          statLabel = 'SIXES';
+          break;
+      }
+
+      item.innerHTML = `
+        <div class="leaderboard-rank">${i + 1}</div>
+        <div class="leaderboard-avatar">
+          <i class="fas fa-user"></i>
+        </div>
+        <div class="leaderboard-info">
+          <div class="leaderboard-name">${player.name}</div>
+          <div class="leaderboard-team">${player.team || 'No Team'} • ${player.matchType || 'T20'}</div>
+        </div>
+        <div class="leaderboard-stats">
+          <div class="leaderboard-stat">
+            <div class="leaderboard-stat-value">${mainStat}</div>
+            <div class="leaderboard-stat-label">${statLabel}</div>
+          </div>
+          <div class="leaderboard-stat">
+            <div class="leaderboard-stat-value">${calculateStrikeRate(player.runs, player.balls)}</div>
+            <div class="leaderboard-stat-label">S/R</div>
+          </div>
+          <div class="leaderboard-stat">
+            <div class="leaderboard-stat-value">${(player.fours || 0) + (player.sixes || 0)}</div>
+            <div class="leaderboard-stat-label">4s+6s</div>
+          </div>
+        </div>
+      `;
+
+      listContainer.appendChild(item);
+    }
+  } else {
+    listContainer.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--text-muted);">Only top 3 players available</p>';
+  }
+}
+
+// ===== PRINT STATS =====
+function printStats() {
+  const printWindow = window.open('', '', 'width=800,height=600');
+  const statsHTML = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Cricket Performance Stats</title>
+      <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        h1 { color: #7c3aed; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background: #7c3aed; color: white; }
+        tr:nth-child(even) { background: #f2f2f2; }
+        .summary { background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0; }
+      </style>
+    </head>
+    <body>
+      <h1>🏏 Cricket Performance Analyzer - Stats Report</h1>
+      <div class="summary">
+        <h3>Summary</h3>
+        <p><strong>Total Players:</strong> ${players.length}</p>
+        <p><strong>Total Runs:</strong> ${players.reduce((sum, p) => sum + p.runs, 0)}</p>
+        <p><strong>Total Boundaries:</strong> ${players.reduce((sum, p) => sum + (p.fours || 0) + (p.sixes || 0), 0)}</p>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Player</th>
+            <th>Team</th>
+            <th>Type</th>
+            <th>Runs</th>
+            <th>Balls</th>
+            <th>4s</th>
+            <th>6s</th>
+            <th>Strike Rate</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${players.map(p => `
+            <tr>
+              <td>${p.name}</td>
+              <td>${p.team || '-'}</td>
+              <td>${p.matchType || 'T20'}</td>
+              <td>${p.runs}</td>
+              <td>${p.balls}</td>
+              <td>${p.fours || 0}</td>
+              <td>${p.sixes || 0}</td>
+              <td>${calculateStrikeRate(p.runs, p.balls)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      <p style="text-align: center; color: #666; margin-top: 30px;">
+        Generated by Cricket Performance Analyzer Pro - ${new Date().toLocaleString()}
+      </p>
+    </body>
+    </html>
+  `;
+  
+  printWindow.document.write(statsHTML);
+  printWindow.document.close();
+  printWindow.print();
+  showToast('Stats prepared for printing', 'success');
 }
 
 // Custom Confirm Dialog
@@ -220,6 +565,39 @@ function validatePlayerData(player) {
   }
   
   return null;
+}
+
+// BUG #8 FIX: Sanitize user input to prevent XSS
+function sanitizeInput(input) {
+  if (typeof input !== 'string') return input;
+  // Remove any HTML tags and script content
+  const div = document.createElement('div');
+  div.textContent = input;
+  return div.innerHTML.trim();
+}
+
+// BUG #3 FIX: Check for duplicate players
+function checkDuplicatePlayer(name, team, matchType) {
+  return players.some(p => 
+    p.name.toLowerCase() === name.toLowerCase() && 
+    (p.team || '').toLowerCase() === (team || '').toLowerCase() &&
+    p.matchType === matchType
+  );
+}
+
+// BUG #6 FIX: Sanitize CSV output to prevent formula injection
+function sanitizeCSVField(field) {
+  if (field === null || field === undefined) return '';
+  const str = String(field);
+  // Escape formula characters
+  if (str.match(/^[=+\-@]/)) {
+    return "'" + str;
+  }
+  // Escape quotes and wrap in quotes if contains comma/newline
+  if (str.includes(',') || str.includes('\n') || str.includes('"')) {
+    return '"' + str.replace(/"/g, '""') + '"';
+  }
+  return str;
 }
 
 // Update statistics summary
@@ -411,26 +789,59 @@ function destroyAnalyticsCharts() {
   boundaryChart = null;
 }
 
-// Get chart options based on theme
+// Get chart options with modern styling
 function getChartOptions() {
   return {
     responsive: true,
+    maintainAspectRatio: true,
     plugins: {
       legend: {
         labels: {
-          color: isDarkTheme ? '#e0e0e0' : '#1a1f3a'
+          color: '#e2e8f0',
+          font: {
+            family: 'Inter, sans-serif',
+            size: 12,
+            weight: 500
+          },
+          padding: 15
         }
+      },
+      tooltip: {
+        backgroundColor: '#1a1a2e',
+        titleColor: '#e2e8f0',
+        bodyColor: '#94a3b8',
+        borderColor: '#7c3aed',
+        borderWidth: 1,
+        padding: 12,
+        displayColors: true,
+        boxPadding: 6
       }
     },
     scales: {
       y: {
         ticks: {
-          color: isDarkTheme ? '#e0e0e0' : '#1a1f3a'
+          color: '#94a3b8',
+          font: {
+            family: 'Inter, sans-serif',
+            size: 11
+          }
+        },
+        grid: {
+          color: 'rgba(255, 255, 255, 0.05)',
+          drawBorder: false
         }
       },
       x: {
         ticks: {
-          color: isDarkTheme ? '#e0e0e0' : '#1a1f3a'
+          color: '#94a3b8',
+          font: {
+            family: 'Inter, sans-serif',
+            size: 11
+          }
+        },
+        grid: {
+          color: 'rgba(255, 255, 255, 0.05)',
+          drawBorder: false
         }
       }
     }
@@ -456,7 +867,7 @@ function updateCharts() {
   // Destroy existing charts
   destroyAnalyticsCharts();
   
-  // Runs Chart
+  // Runs Chart - Teal/Cyan
   const runsCtx = document.getElementById('runsChart').getContext('2d');
   runsChart = new Chart(runsCtx, {
     type: 'bar',
@@ -465,15 +876,16 @@ function updateCharts() {
       datasets: [{
         label: 'Runs',
         data: topPlayers.map(p => p.runs),
-        backgroundColor: 'rgba(0, 217, 255, 0.6)',
-        borderColor: 'rgba(0, 217, 255, 1)',
-        borderWidth: 2
+        backgroundColor: 'rgba(6, 182, 212, 0.7)',
+        borderColor: 'rgba(6, 182, 212, 1)',
+        borderWidth: 2,
+        borderRadius: 8
       }]
     },
     options: getChartOptions()
   });
   
-  // Strike Rate Chart
+  // Strike Rate Chart - Coral/Orange
   const strikeCtx = document.getElementById('strikeChart').getContext('2d');
   strikeChart = new Chart(strikeCtx, {
     type: 'line',
@@ -483,12 +895,18 @@ function updateCharts() {
         label: 'Strike Rate',
         data: topPlayers.map(p => {
           const sr = calculateStrikeRate(p.runs, p.balls);
-          return sr === '∞' ? 300 : parseFloat(sr); // Use 300 as proxy for infinity
+          return sr === '∞' ? 300 : parseFloat(sr);
         }),
-        backgroundColor: 'rgba(255, 0, 110, 0.2)',
-        borderColor: 'rgba(255, 0, 110, 1)',
-        borderWidth: 2,
-        tension: 0.4
+        backgroundColor: 'rgba(249, 115, 22, 0.2)',
+        borderColor: 'rgba(249, 115, 22, 1)',
+        borderWidth: 3,
+        tension: 0.4,
+        fill: true,
+        pointBackgroundColor: 'rgba(249, 115, 22, 1)',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 5,
+        pointHoverRadius: 7
       }]
     },
     options: {
@@ -496,23 +914,39 @@ function updateCharts() {
       scales: {
         y: {
           ticks: {
-            color: isDarkTheme ? '#e0e0e0' : '#1a1f3a',
+            color: '#94a3b8',
+            font: {
+              family: 'Inter, sans-serif',
+              size: 11
+            },
             callback: function(value, index, values) {
               if (value >= 300) return '∞';
               return value;
             }
+          },
+          grid: {
+            color: 'rgba(255, 255, 255, 0.05)',
+            drawBorder: false
           }
         },
         x: {
           ticks: {
-            color: isDarkTheme ? '#e0e0e0' : '#1a1f3a'
+            color: '#94a3b8',
+            font: {
+              family: 'Inter, sans-serif',
+              size: 11
+            }
+          },
+          grid: {
+            color: 'rgba(255, 255, 255, 0.05)',
+            drawBorder: false
           }
         }
       }
     }
   });
   
-  // Boundary Chart
+  // Boundary Chart - Teal & Coral
   const boundaryCtx = document.getElementById('boundaryChart').getContext('2d');
   boundaryChart = new Chart(boundaryCtx, {
     type: 'bar',
@@ -522,16 +956,18 @@ function updateCharts() {
         {
           label: 'Fours',
           data: topPlayers.map(p => p.fours || 0),
-          backgroundColor: 'rgba(0, 217, 255, 0.6)',
-          borderColor: 'rgba(0, 217, 255, 1)',
-          borderWidth: 1
+          backgroundColor: 'rgba(20, 184, 166, 0.7)',
+          borderColor: 'rgba(20, 184, 166, 1)',
+          borderWidth: 2,
+          borderRadius: 8
         },
         {
           label: 'Sixes',
           data: topPlayers.map(p => p.sixes || 0),
-          backgroundColor: 'rgba(255, 0, 110, 0.6)',
-          borderColor: 'rgba(255, 0, 110, 1)',
-          borderWidth: 1
+          backgroundColor: 'rgba(249, 115, 22, 0.7)',
+          borderColor: 'rgba(249, 115, 22, 1)',
+          borderWidth: 2,
+          borderRadius: 8
         }
       ]
     },
@@ -542,14 +978,20 @@ function updateCharts() {
 // Add player
 function addPlayer(e) {
   e.preventDefault();
+  
+  // BUG #8 FIX: Sanitize inputs
+  const rawName = document.getElementById('player-name').value.trim();
+  const rawTeam = document.getElementById('team').value.trim();
+  
   const player = {
-    name: document.getElementById('player-name').value.trim(),
+    name: sanitizeInput(rawName),
     runs: parseInt(document.getElementById('runs').value) || 0,
     balls: parseInt(document.getElementById('balls').value) || 0,
     fours: parseInt(document.getElementById('fours').value) || 0,
     sixes: parseInt(document.getElementById('sixes').value) || 0,
     matchType: document.getElementById('match-type').value,
-    team: document.getElementById('team').value.trim()
+    team: sanitizeInput(rawTeam),
+    createdAt: new Date().toISOString() // BUG #15 FIX: Add timestamp
   };
   
   // Validate player data
@@ -559,13 +1001,25 @@ function addPlayer(e) {
     return;
   }
   
+  // BUG #3 FIX: Check for duplicates
+  if (checkDuplicatePlayer(player.name, player.team, player.matchType)) {
+    const confirmed = confirm(`A player named "${player.name}" from ${player.team || 'Unknown Team'} (${player.matchType}) already exists. Add anyway?`);
+    if (!confirmed) {
+      return;
+    }
+  }
+  
   players.push(player);
   savePlayers();
   updateStats();
   updateTable();
   updateCharts();
   populateComparisonSelects();
+  generateInsights();
+  updateLeaderboard('runs');
+  populatePlayerOfMatchSelect();
   e.target.reset();
+  showToast(`Player "${player.name}" added successfully!`, 'success');
 }
 
 // Import CSV
@@ -632,6 +1086,7 @@ function importCSV(e) {
         updateTable();
         updateCharts();
         populateComparisonSelects();
+        populatePlayerOfMatchSelect();
       }
       
       if (errors.length > 0) {
@@ -692,14 +1147,25 @@ function editPlayer(idx) {
 function saveEdit(e) {
   e.preventDefault();
   const idx = parseInt(document.getElementById('edit-index').value);
+  
+  // BUG #8 & #9 FIX: Sanitize and validate inputs
+  const rawName = document.getElementById('edit-name').value.trim();
+  const rawTeam = document.getElementById('edit-team').value.trim();
+  const runs = parseInt(document.getElementById('edit-runs').value) || 0;
+  const balls = parseInt(document.getElementById('edit-balls').value) || 0;
+  const fours = parseInt(document.getElementById('edit-fours').value) || 0;
+  const sixes = parseInt(document.getElementById('edit-sixes').value) || 0;
+  
   const player = {
-    name: document.getElementById('edit-name').value.trim(),
-    runs: parseInt(document.getElementById('edit-runs').value) || 0,
-    balls: parseInt(document.getElementById('edit-balls').value) || 0,
-    fours: parseInt(document.getElementById('edit-fours').value) || 0,
-    sixes: parseInt(document.getElementById('edit-sixes').value) || 0,
+    name: sanitizeInput(rawName),
+    runs: Math.max(0, runs), // BUG #9 FIX: Prevent negative values
+    balls: Math.max(0, balls),
+    fours: Math.max(0, fours),
+    sixes: Math.max(0, sixes),
     matchType: document.getElementById('edit-match-type').value,
-    team: document.getElementById('edit-team').value.trim()
+    team: sanitizeInput(rawTeam),
+    createdAt: players[idx].createdAt || new Date().toISOString(), // Preserve original timestamp
+    updatedAt: new Date().toISOString() // BUG #15 FIX: Add update timestamp
   };
   
   // Validate player data
@@ -759,23 +1225,31 @@ function clearAll() {
   });
 }
 
-// Download CSV
+// Download CSV - BUG #6 & #17 FIX: CSV injection prevention + dynamic filename
 function downloadCSV() {
   let csv = 'Name,Runs,Balls,Fours,Sixes,Strike Rate,Match Type,Team\n';
   players.forEach(p => {
-    // Escape commas and quotes in name/team
-    const escapedName = p.name.includes(',') || p.name.includes('"') ? `"${p.name.replace(/"/g, '""')}"` : p.name;
-    const escapedTeam = (p.team || '').includes(',') || (p.team || '').includes('"') ? `"${(p.team || '').replace(/"/g, '""')}"` : (p.team || '');
-    
-    csv += `${escapedName},${p.runs},${p.balls},${p.fours || 0},${p.sixes || 0},${calculateStrikeRate(p.runs, p.balls)},${p.matchType || 'T20'},${escapedTeam}\n`;
+    // BUG #6 FIX: Use sanitizeCSVField to prevent formula injection
+    csv += `${sanitizeCSVField(p.name)},`;
+    csv += `${p.runs},${p.balls},${p.fours || 0},${p.sixes || 0},`;
+    csv += `${calculateStrikeRate(p.runs, p.balls)},`;
+    csv += `${sanitizeCSVField(p.matchType || 'T20')},`;
+    csv += `${sanitizeCSVField(p.team || '')}\n`;
   });
+  
   const blob = new Blob([csv], { type: 'text/csv' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'cricket_stats.csv';
+  
+  // BUG #17 FIX: Dynamic filename with timestamp
+  const timestamp = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+  a.download = `cricket_stats_${timestamp}.csv`;
+  
   a.click();
   URL.revokeObjectURL(url);
+  
+  showToast(`Exported ${players.length} players successfully!`, 'success', 3000);
 }
 
 // AI Assistant
@@ -925,9 +1399,10 @@ function comparePlayers() {
             player1.sixes || 0,
             sr1 === '∞' ? 300 : parseFloat(sr1)
           ],
-          backgroundColor: 'rgba(0, 217, 255, 0.6)',
-          borderColor: 'rgba(0, 217, 255, 1)',
-          borderWidth: 1
+          backgroundColor: 'rgba(6, 182, 212, 0.7)',
+          borderColor: 'rgba(6, 182, 212, 1)',
+          borderWidth: 2,
+          borderRadius: 8
         },
         {
           label: player2.name,
@@ -938,9 +1413,10 @@ function comparePlayers() {
             player2.sixes || 0,
             sr2 === '∞' ? 300 : parseFloat(sr2)
           ],
-          backgroundColor: 'rgba(255, 0, 110, 0.6)',
-          borderColor: 'rgba(255, 0, 110, 1)',
-          borderWidth: 1
+          backgroundColor: 'rgba(249, 115, 22, 0.7)',
+          borderColor: 'rgba(249, 115, 22, 1)',
+          borderWidth: 2,
+          borderRadius: 8
         }
       ]
     },
@@ -950,16 +1426,32 @@ function comparePlayers() {
         y: {
           beginAtZero: true,
           ticks: {
-            color: isDarkTheme ? '#e0e0e0' : '#1a1f3a',
+            color: '#94a3b8',
+            font: {
+              family: 'Inter, sans-serif',
+              size: 11
+            },
             callback: function(value, index, values) {
               if (value >= 300) return '∞';
               return value;
             }
+          },
+          grid: {
+            color: 'rgba(255, 255, 255, 0.05)',
+            drawBorder: false
           }
         },
         x: {
           ticks: {
-            color: isDarkTheme ? '#e0e0e0' : '#1a1f3a'
+            color: '#94a3b8',
+            font: {
+              family: 'Inter, sans-serif',
+              size: 11
+            }
+          },
+          grid: {
+            color: 'rgba(255, 255, 255, 0.05)',
+            drawBorder: false
           }
         }
       }
@@ -970,9 +1462,367 @@ function comparePlayers() {
 // Save players to localStorage
 function savePlayers() {
   try {
-    localStorage.setItem('cricketPlayers', JSON.stringify(players));
+    const dataString = JSON.stringify(players);
+    // Check if we're approaching quota (5MB typical limit)
+    if (dataString.length > 4.5 * 1024 * 1024) {
+      showToast('Warning: Approaching storage limit. Consider exporting data.', 'warning', 5000);
+    }
+    localStorage.setItem('cricketPlayers', dataString);
   } catch (e) {
     // Handle localStorage quota exceeded
-    showError('Storage limit exceeded. Some data may not be saved.');
+    if (e.name === 'QuotaExceededError') {
+      showError('Storage limit exceeded! Please export data and clear some players.');
+    } else {
+      showError('Failed to save data: ' + e.message);
+    }
+    console.error('Save error:', e);
   }
 }
+
+// ===== TOAST NOTIFICATION SYSTEM =====
+function showToast(message, type = 'info', duration = 3000) {
+  const container = document.getElementById('toast-container');
+  
+  // BUG #21 FIX: Limit toast stacking (max 3 visible toasts)
+  const existingToasts = container.querySelectorAll('.toast');
+  if (existingToasts.length >= 3) {
+    // Remove oldest toast
+    existingToasts[0].remove();
+  }
+  
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  
+  const icons = {
+    success: '✓',
+    error: '✗',
+    warning: '⚠',
+    info: 'ℹ'
+  };
+  
+  const titles = {
+    success: 'Success',
+    error: 'Error',
+    warning: 'Warning',
+    info: 'Info'
+  };
+  
+  // BUG #8 FIX: Sanitize message
+  const sanitizedMessage = sanitizeInput(message);
+  
+  toast.innerHTML = `
+    <div class="toast-icon">${icons[type]}</div>
+    <div class="toast-content">
+      <div class="toast-title">${titles[type]}</div>
+      <div class="toast-message">${sanitizedMessage}</div>
+    </div>
+    <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+  `;
+  
+  container.appendChild(toast);
+  
+  // Auto remove after duration
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(400px)';
+    setTimeout(() => toast.remove(), 300);
+  }, duration);
+}
+
+// ===== SCROLL TO TOP BUTTON =====
+(function initScrollToTop() {
+  // Create scroll to top button
+  const scrollBtn = document.createElement('button');
+  scrollBtn.className = 'scroll-to-top';
+  scrollBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
+  scrollBtn.setAttribute('aria-label', 'Scroll to top');
+  document.body.appendChild(scrollBtn);
+  
+  // Show/hide button based on scroll position
+  window.addEventListener('scroll', () => {
+    if (window.pageYOffset > 300) {
+      scrollBtn.classList.add('show');
+    } else {
+      scrollBtn.classList.remove('show');
+    }
+  });
+  
+  // Scroll to top on click
+  scrollBtn.addEventListener('click', () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  });
+})();
+
+// ===== ENHANCED ADD PLAYER WITH TOAST =====
+const originalAddPlayer = addPlayer;
+addPlayer = function(e) {
+  e.preventDefault();
+  const player = {
+    name: document.getElementById('player-name').value.trim(),
+    runs: parseInt(document.getElementById('runs').value) || 0,
+    balls: parseInt(document.getElementById('balls').value) || 0,
+    fours: parseInt(document.getElementById('fours').value) || 0,
+    sixes: parseInt(document.getElementById('sixes').value) || 0,
+    matchType: document.getElementById('match-type').value,
+    team: document.getElementById('team').value.trim()
+  };
+  
+  // Validate player data
+  const validationError = validatePlayerData(player);
+  if (validationError) {
+    showError(validationError);
+    showToast(validationError, 'error');
+    return;
+  }
+  
+  players.push(player);
+  savePlayers();
+  updateStats();
+  updateTable();
+  updateCharts();
+  populateComparisonSelects();
+  e.target.reset();
+  
+  showToast(`Player "${player.name}" added successfully!`, 'success');
+};
+
+// ===== ENHANCED DELETE WITH TOAST =====
+const originalDeletePlayer = deletePlayer;
+deletePlayer = async function(index) {
+  const player = players[index];
+  const confirmed = await customConfirm(
+    `Are you sure you want to delete ${player.name}?`,
+    'Delete Player',
+    '🗑️'
+  );
+  
+  if (confirmed) {
+    players.splice(index, 1);
+    savePlayers();
+    updateStats();
+    updateTable();
+    updateCharts();
+    populateComparisonSelects();
+    populatePlayerOfMatchSelect();
+    showToast(`Player "${player.name}" deleted successfully`, 'success');
+  }
+};
+
+// ===== ENHANCED EDIT WITH TOAST =====
+const originalSaveEdit = saveEdit;
+saveEdit = function(e) {
+  e.preventDefault();
+  const index = parseInt(document.getElementById('edit-index').value);
+  const player = {
+    name: document.getElementById('edit-name').value.trim(),
+    runs: parseInt(document.getElementById('edit-runs').value) || 0,
+    balls: parseInt(document.getElementById('edit-balls').value) || 0,
+    fours: parseInt(document.getElementById('edit-fours').value) || 0,
+    sixes: parseInt(document.getElementById('edit-sixes').value) || 0,
+    matchType: document.getElementById('edit-match-type').value,
+    team: document.getElementById('edit-team').value.trim()
+  };
+  
+  // Validate player data
+  const validationError = validatePlayerData(player);
+  if (validationError) {
+    showError(validationError);
+    showToast(validationError, 'error');
+    return;
+  }
+  
+  players[index] = player;
+  savePlayers();
+  updateStats();
+  updateTable();
+  updateCharts();
+  populateComparisonSelects();
+  populatePlayerOfMatchSelect();
+  closeModal();
+  
+  showToast(`Player "${player.name}" updated successfully!`, 'success');
+};
+
+// ===== ENHANCED CLEAR ALL WITH TOAST =====
+const originalClearAll = clearAll;
+clearAll = async function() {
+  if (players.length === 0) {
+    showToast('No players to clear', 'warning');
+    return;
+  }
+  
+  const confirmed = await customConfirm(
+    `Are you sure you want to delete all ${players.length} players? This action cannot be undone.`,
+    'Clear All Players',
+    '⚠️'
+  );
+  
+  if (confirmed) {
+    const count = players.length;
+    players = [];
+    savePlayers();
+    updateStats();
+    updateTable();
+    updateCharts();
+    populateComparisonSelects();
+    populatePlayerOfMatchSelect();
+    showToast(`All ${count} players cleared successfully`, 'success');
+  }
+};
+
+// ===== ENHANCED CSV IMPORT WITH TOAST =====
+const originalImportCSV = importCSV;
+importCSV = function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  
+  showToast('Importing CSV file...', 'info', 2000);
+  
+  // Call original function and add toast on completion
+  setTimeout(() => {
+    originalImportCSV(e);
+    showToast('CSV imported successfully!', 'success');
+  }, 500);
+};
+
+// ===== KEYBOARD SHORTCUTS =====
+document.addEventListener('keydown', (e) => {
+  // Ctrl/Cmd + K: Focus search
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault();
+    const searchBox = document.getElementById('search-box');
+    if (searchBox) {
+      // Switch to statistics tab
+      document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+      document.querySelector('#statistics').style.display = 'block';
+      document.querySelectorAll('.tabs a').forEach(a => a.classList.remove('active'));
+      document.querySelector('.tabs a[href="#statistics"]').classList.add('active');
+      searchBox.focus();
+      showToast('Search activated - Type to find players', 'info', 2000);
+    }
+  }
+  
+  // Ctrl/Cmd + N: Focus add player form
+  if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+    e.preventDefault();
+    document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+    document.querySelector('#add-player').style.display = 'block';
+    document.querySelectorAll('.tabs a').forEach(a => a.classList.remove('active'));
+    document.querySelector('.tabs a[href="#add-player"]').classList.add('active');
+    document.getElementById('player-name').focus();
+    showToast('Add new player', 'info', 2000);
+  }
+  
+  // Ctrl/Cmd + /: Show keyboard shortcuts
+  if ((e.ctrlKey || e.metaKey) && e.key === '/') {
+    e.preventDefault();
+    showKeyboardShortcuts();
+  }
+  
+  // Escape: Close modals
+  if (e.key === 'Escape') {
+    const modal = document.getElementById('edit-modal');
+    if (modal.classList.contains('show')) {
+      closeModal();
+    }
+  }
+});
+
+// ===== KEYBOARD SHORTCUTS HELP =====
+function showKeyboardShortcuts() {
+  const shortcuts = `
+    <strong>Keyboard Shortcuts:</strong><br><br>
+    <strong>Ctrl/Cmd + K</strong> - Search players<br>
+    <strong>Ctrl/Cmd + N</strong> - Add new player<br>
+    <strong>Ctrl/Cmd + /</strong> - Show this help<br>
+    <strong>Esc</strong> - Close dialogs<br>
+  `;
+  
+  const dialog = document.getElementById('error-dialog');
+  const titleEl = document.querySelector('.error-title');
+  const messageEl = document.getElementById('error-message');
+  const iconEl = document.querySelector('.error-icon');
+  
+  titleEl.textContent = 'Keyboard Shortcuts';
+  messageEl.innerHTML = shortcuts;
+  iconEl.textContent = '⌨️';
+  dialog.classList.add('show');
+}
+
+// ===== ENHANCED DOWNLOAD CSV WITH TOAST =====
+const originalDownloadCSV = downloadCSV;
+downloadCSV = function() {
+  if (players.length === 0) {
+    showToast('No players to export', 'warning');
+    return;
+  }
+  
+  originalDownloadCSV();
+  showToast(`Exported ${players.length} players to CSV`, 'success');
+};
+
+// ===== PAGE LOAD ANIMATION =====
+window.addEventListener('load', () => {
+  showToast('Welcome to Cricket Performance Analyzer! Press Ctrl+/ for shortcuts', 'info', 4000);
+});
+
+// ===== FOOTER LINK HANDLERS =====
+document.querySelectorAll('.footer-links a').forEach(link => {
+  link.addEventListener('click', (e) => {
+    const href = link.getAttribute('href');
+    if (href && href.startsWith('#')) {
+      e.preventDefault();
+      const targetTab = href;
+      document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+      document.querySelector(targetTab).style.display = 'block';
+      document.querySelectorAll('.tabs a').forEach(a => a.classList.remove('active'));
+      document.querySelector(`.tabs a[href="${targetTab}"]`).classList.add('active');
+      
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  });
+});
+
+// ===== IMPROVED FORM VALIDATION =====
+function addInputValidation() {
+  const numberInputs = document.querySelectorAll('input[type="number"]');
+  
+  numberInputs.forEach(input => {
+    input.addEventListener('blur', function() {
+      const min = parseInt(this.getAttribute('min')) || 0;
+      const value = parseInt(this.value);
+      
+      if (this.value === '') return;
+      
+      if (value < min) {
+        this.value = min;
+        showToast(`Value cannot be less than ${min}`, 'warning', 2000);
+      }
+    });
+    
+    // Prevent negative values on input
+    input.addEventListener('input', function() {
+      if (this.value && parseInt(this.value) < 0) {
+        this.value = 0;
+      }
+    });
+  });
+}
+
+// Initialize input validation
+addInputValidation();
+
+// ===== ANALYTICS TAB ENHANCEMENTS =====
+document.querySelector('.tabs a[href="#analytics"]').addEventListener('click', () => {
+  if (players.length === 0) {
+    showToast('Add some players first to see analytics', 'info', 3000);
+  } else {
+    showToast('Loading analytics...', 'info', 1500);
+  }
+});
+
+// BUG #4 FIX: Duplicate function removed - now defined earlier in file

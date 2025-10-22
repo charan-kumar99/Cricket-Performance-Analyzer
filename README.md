@@ -1,20 +1,45 @@
-# 🏏 Cricket Performance Analyzer
+# 🏏 Cricket Performance Analyzer Pro
 
-A web-based application to track, analyze, and compare cricket players' statistics using strike rate and boundary metrics. Built with HTML, CSS, and JavaScript, this tool offers interactive charts, AI assistant queries, and CSV import/export functionalities.
+**Version 2.0** - A modern, production-ready cricket statistics tracking and analysis platform with advanced animations
+
+![Production Ready](https://img.shields.io/badge/status-production%20ready-success) ![Version](https://img.shields.io/badge/version-2.0.0-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![Animations](https://img.shields.io/badge/animations-advanced-orange)
+
+A sleek, professional web application for tracking, analyzing, and comparing cricket player statistics with real-time calculations, interactive charts, AI-powered insights, comprehensive performance tracking, and stunning visual animations. Built with modern web technologies featuring multiple font families and smooth transitions throughout.
 
 ---
 
-## 🚀 Features
+## ✨ Key Features
 
-- **Player Management**: Add, edit, and delete player statistics.
-- **Automatic Calculations**: Strike rate and boundary percentages computed in real-time.
-- **Advanced Filtering**: Filter players by name, match type (T20, ODI, Test), and team.
-- **Sorting Options**: Sort players by runs, strike rate, or boundaries.
-- **Data Import/Export**: Import player data from and export to CSV files.
-- **Analytics Dashboard**: Visualize top run scorers, strike rate comparisons, and boundary statistics.
-- **Player Comparison**: Compare statistics between two players.
-- **AI Assistant**: Query player statistics using natural language.
-- **Theme Toggle**: Switch between light and dark themes.
+### 📊 **Performance Analytics**
+- **Real-time Dashboard** - Live statistics with animated stat cards
+- **Interactive Charts** - Beautiful visualizations using Chart.js
+- **Performance Insights** - AI-generated insights for top performers
+- **Strike Rate Calculator** - Automatic computation with boundary metrics
+
+### 👥 **Player Management**
+- **Quick Add** - Fast player data entry with validation
+- **Bulk Import** - CSV file upload with error handling
+- **Edit & Delete** - Manage player records with confirmation dialogs
+- **Search & Filter** - Advanced filtering by name, team, and match type
+
+### 📈 **Advanced Analytics**
+- **Comparison Tool** - Side-by-side player statistics
+- **Top Performers** - Leaderboards for runs, strike rate, boundaries
+- **Visual Reports** - Bar, line, and combo charts
+- **Print Stats** - Export formatted reports for printing
+
+### 🤖 **AI Assistant**
+- **Natural Language Queries** - Ask questions in plain English
+- **Quick Insights** - "Best strike rate", "Top scorers", etc.
+- **Player Comparison** - "Compare Virat and Rohit"
+- **Team Statistics** - "Team India stats"
+
+### 🎯 **User Experience**
+- **Onboarding Modal** - First-time user guidance
+- **Toast Notifications** - Real-time feedback for all actions
+- **Keyboard Shortcuts** - Power user productivity features
+- **Smooth Animations** - Modern, fluid interface transitions
+- **Responsive Design** - Perfect on desktop, tablet, and mobile
 
 ---
 
@@ -38,64 +63,122 @@ A web-based application to track, analyze, and compare cricket players' statisti
 ![AI Assistant](assets/ai_assistant_view.png)  
 *AI Assistant View*
 
+---
 
-## 💻 Installation
+## 💻 Quick Start
 
-1. Clone the repository:
+### Installation
 
+1. **Clone the repository:**
    ```bash
    git clone https://github.com/charan-kumar99/Cricket-Performance-Analyzer.git
+   cd Cricket-Performance-Analyzer
+   ```
 
+2. **Run the application:**
+   - **Option 1:** Simply open `index.html` in your web browser
+   - **Option 2:** Use a local server (recommended):
+     ```bash
+     # Using Python 3
+     python -m http.server 8000
+     
+     # Using Node.js http-server
+     npx http-server
+     
+     # Using PHP
+     php -S localhost:8000
+     ```
+   - Then open http://localhost:8000 in your browser
 
-Navigate into the project directory:
+3. **Start using:**
+   - The onboarding modal will guide you through the features
+   - Add your first player to begin tracking statistics
 
-cd Cricket-Performance-Analyzer
+### System Requirements
 
-Open index.html in your browser to start using the application.
-
----
-
-## 🛠 Usage
-
-**Add a Player:** Use the form to input player statistics.
-
-**View Statistics:** Navigate to the Statistics tab to see player data.
-
-**Analyze Performance:** Access the Analytics tab for interactive charts.
-
-**Compare Players:** Use the Comparison tab to compare two players.
-
-**AI Assistant:** Ask questions like:
-
-        “Who has the best strike rate?”
-
-        “Top 5 run scorers”
-
-        “Most boundaries”
-
-        “Compare [player1] and [player2]”
-
-        “Team [name] stats”
-
-**Import/Export Data:** Manage player data via CSV files.
-
-**Toggle Theme:** Switch between light and dark modes.
+- Modern web browser (Chrome 90+, Firefox 88+, Safari 14+, Edge 90+)
+- JavaScript enabled
+- LocalStorage enabled (for data persistence)
+- Internet connection (for CDN resources: Font Awesome, Chart.js, Google Fonts)
 
 ---
 
-## 📊 AI Assistant Commands
+## 🎯 Usage Guide
 
-**Who has the best strike rate?**
+### Adding Players
 
-**Top 5 run scorers**
+1. Navigate to **Add Player** tab
+2. Fill in the required fields:
+   - Player Name (required)
+   - Runs (required)
+   - Balls faced (required)
+   - Fours, Sixes (optional)
+   - Team Name (optional)
+   - Match Type (T20/ODI/Test)
+3. Click **Add Player**
+4. Strike rate and boundary percentage are calculated automatically
 
-**Average runs**
+### Viewing Statistics
 
-**Most boundaries**
+- Go to **Statistics** tab
+- Use filters to sort by:
+  - Match type (T20, ODI, Test)
+  - Team
+  - Sort by runs, strike rate, or boundaries
+- Search players by name
+- Edit or delete individual records
 
-**Compare [player1] and [player2]**
+### Analyzing Performance
 
-**Team [name] stats**
+- **Dashboard**: View overall statistics at a glance
+- **Analytics**: Interactive charts showing top 10 players
+- **Insights**: AI-generated performance insights
+  - Top Performer
+  - Highest Strike Rate
+  - Most Consistent
+  - Boundary King
+
+### Comparing Players
+
+1. Go to **Comparison** tab
+2. Select two players from dropdowns
+3. Click **Compare**
+4. View side-by-side statistics in chart form
+
+### Using AI Assistant
+
+Navigate to **AI Assistant** tab and ask questions:
+
+- `"Best Strike Rate"` - Find player with highest SR
+- `"Top Scorers"` - See top 5 run scorers
+- `"Average Stats"` - View average runs per player
+- `"Most Boundaries"` - Find boundary king
+- `"Compare Virat and Rohit"` - Direct player comparison
+- `"Team India stats"` - Team-specific statistics
+
+### Import/Export Data
+
+**Import CSV:**
+1. Prepare CSV file with headers: Name,Runs,Balls,Fours,Sixes,MatchType,Team
+2. Click **Import CSV** in Add Player tab
+3. Select your file
+4. Review any import errors if present
+
+**Export CSV:**
+- Go to Statistics tab
+- Click **Export CSV** to download all data
+
+**Print Stats:**
+- Go to Insights tab
+- Click **Print Stats** for formatted report
+
+### Keyboard Shortcuts
+
+Power users can use these shortcuts:
+- `Ctrl/Cmd + K` - Quick search players
+- `Ctrl/Cmd + N` - Add new player
+- `Ctrl/Cmd + /` - Show keyboard shortcuts
+- `Esc` - Close dialogs/modals
 
 ---
 
@@ -103,53 +186,140 @@ Open index.html in your browser to start using the application.
 ```bash
 Cricket-Performance-Analyzer/
 │
-├── index.html        # Main HTML file
-├── script.js         # JavaScript logic
-├── style.css         # CSS styling
-├── players.csv       # Sample player data
-└── assets/           # Screenshots and images
+├── index.html         # Main HTML file with semantic structure
+├── script.js          # JavaScript logic and animations
+├── style.css          # Advanced CSS with animations
+├── players.csv        # Sample player data
+├── AI_COMMANDS.md     # Complete AI assistant commands reference
+├── README.md          # Project documentation
+└── assets/            # Screenshots and images
 ```
+
+### **File Descriptions**
+
+| File | Purpose |
+|------|---------|
+| `index.html` | Main application structure with tabs and components |
+| `script.js` | All JavaScript functionality including leaderboard |
+| `style.css` | Complete styling with animations and font families |
+| `AI_COMMANDS.md` | **📖 Full reference of all AI assistant commands** |
+| `players.csv` | Sample data for importing |
+
 ---
 
-## ⚙️ Technologies Used
+## ⚙️ Tech Stack
 
-**HTML5** – Structure and content of web pages
+| Category | Technologies |
+|----------|-------------|
+| **Frontend** | HTML5, CSS3, JavaScript (ES6+) |
+| **Styling** | Custom CSS with CSS Variables, Modern Gradients, Advanced Animations |
+| **Fonts** | Orbitron, Rajdhani, Inter, Poppins (Google Fonts) |
+| **Icons** | Font Awesome 6.0 |
+| **Charts** | Chart.js 4.x with custom styling |
+| **Storage** | LocalStorage API for data persistence |
+| **Design** | Responsive, Mobile-First, Teal/Cyan Dark Theme |
+| **Animations** | CSS Keyframes, Transitions, Transforms |
 
-**CSS3** – Styling and layout design
+---
 
-**JavaScript (ES6)** – Interactivity and dynamic content
+## 🎨 Design Features
 
-**Chart.js** – Interactive charts for analytics
+### **Visual Design**
+- **Modern Color Palette** - Teal/Cyan with Coral accents
+- **Glassmorphism Effects** - Backdrop blur and transparency
+- **Gradient Overlays** - Dynamic glowing backgrounds
+- **Responsive Layout** - Works on all screen sizes
+- **Accessibility** - ARIA labels, keyboard navigation
+- **Performance** - Optimized rendering and animations
 
-**LocalStorage** – Persistent player data across sessions
+### **Typography**
+- **Orbitron** - Futuristic font for headings and numbers (uppercase, wide spacing)
+- **Rajdhani** - Sporty font for subheadings and labels
+- **Inter** - Clean font for body text and forms
+- **Poppins** - Modern font for specific elements
 
+### **Advanced Animations**
+- **Title Glitch Effect** - Periodic glitch animation on main heading
+- **Fade In Up** - Cards slide up and fade in on load
+- **Zoom In** - Stat cards zoom in with bounce effect (staggered)
+- **Slide In** - Section headers slide from left
+- **Rotate In** - Icons rotate and scale on appearance
+- **Number Glow** - Pulsing glow effect on statistics
+- **Icon Pulse** - Continuous pulsing on stat icons
+- **Hover Scale** - Cards scale and rotate slightly on hover
+- **Radial Glow** - Expanding glow effect on card hover
+- **Shine Effect** - Light sweep across buttons on hover
+- **Podium Rise** - Leaderboard podium rises with bounce
+- **Avatar Glow** - Pulsing shadow animation on avatars
+- **Floating Icons** - Trophy icons float up and down
 
-## 🔗 Contributing
+---
 
-Contributions are welcome! To contribute:
+## 🤖 AI Commands Reference
 
-1. **Fork the repository.**
+For a complete list of all AI assistant commands, see **[AI_COMMANDS.md](AI_COMMANDS.md)**
 
-2. **Create a new branch:**
-```bash
-git checkout -b feature/YourFeature
+This comprehensive reference document includes:
+- ✅ All query patterns and variations
+- ✅ Player comparison commands
+- ✅ Team statistics queries
+- ✅ Top performer queries
+- ✅ Natural language examples
+- ✅ Tips for best results
+- ✅ Example conversations
+
+**Quick Examples:**
+```
+"Best strike rate"
+"Top 5 scorers"
+"Compare Virat and Rohit"
+"Team India stats"
+"Most boundaries"
 ```
 
-3. **Commit your changes:**
-```bash
-git commit -m "Add your feature"
-```
+📖 **[View Full Command Reference →](AI_COMMANDS.md)**
 
-4. **Push to the branch:**
-```bash
-git push origin feature/YourFeature
-```
+---
 
-5. **Open a Pull Request.**
+## 🤝 Contributing
 
+Contributions, issues, and feature requests are welcome!
 
-## 📬 Contact
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-**Email:** charansuvarna99@gmail.com
+---
 
-**GitHub:** https://github.com/charan-kumar99
+## 📬 Connect
+
+**Developer:** Charan Kumar
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/charan-kumar-9b20a8378)
+[![GitHub](https://img.shields.io/badge/GitHub-Follow-black?style=for-the-badge&logo=github)](https://github.com/charan-kumar99)
+[![Instagram](https://img.shields.io/badge/Instagram-Follow-E4405F?style=for-the-badge&logo=instagram)](https://www.instagram.com/chanu_xd/)
+[![Email](https://img.shields.io/badge/Email-Contact-red?style=for-the-badge&logo=gmail)](mailto:charansuvarna99@gmail.com)
+
+---
+
+## 📝 License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+---
+
+## 🙏 Acknowledgments
+
+- Font Awesome for the beautiful icons
+- Chart.js for the amazing charting library
+- Google Fonts for Inter and Poppins fonts
+- The cricket community for inspiration
+
+---
+
+<div align="center">
+  <p>Made with ❤️ by <a href="https://github.com/charan-kumar99">Charan Kumar</a></p>
+  <p>⭐ Star this repo if you find it useful!</p>
+</div>

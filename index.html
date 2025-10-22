@@ -10,11 +10,6 @@
   <script src="script.js" defer></script>
 </head>
 <body>
-  <div class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
-    <i class="fas fa-moon"></i>
-    <i class="fas fa-sun"></i>
-  </div>
-
   <div class="container">
     <header>
       <div class="logo">
@@ -27,6 +22,7 @@
     <div class="tabs">
       <ul>
         <li><a href="#dashboard" class="active">Dashboard</a></li>
+        <li><a href="#leaderboard">Leaderboard</a></li>
         <li><a href="#add-player">Add Player</a></li>
         <li><a href="#comparison">Comparison</a></li>
         <li><a href="#statistics">Statistics</a></li>
@@ -70,6 +66,82 @@
               <div class="stat-label">Total Boundaries</div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- NEW FEATURE: PLAYER OF THE MATCH -->
+      <div class="card player-of-match-card">
+        <h2><i class="fas fa-star"></i> Player of the Match</h2>
+        <div class="potm-container">
+          <div class="potm-selector">
+            <label for="potm-select">Select Star Player:</label>
+            <select id="potm-select" onchange="setPlayerOfMatch()">
+              <option value="">-- Choose Player --</option>
+            </select>
+          </div>
+          <div class="potm-display" id="potm-display">
+            <div class="potm-empty">
+              <i class="fas fa-trophy"></i>
+              <p>Select a player to highlight as Player of the Match</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NEW LEADERBOARD TAB -->
+    <div id="leaderboard" class="tab-content" style="display: none;">
+      <div class="leaderboard-header">
+        <h2><i class="fas fa-trophy"></i> Top Performers</h2>
+        <div class="leaderboard-filters">
+          <button class="filter-btn active" data-filter="runs"><i class="fas fa-running"></i> Runs</button>
+          <button class="filter-btn" data-filter="strike-rate"><i class="fas fa-bolt"></i> Strike Rate</button>
+          <button class="filter-btn" data-filter="boundaries"><i class="fas fa-border-all"></i> Boundaries</button>
+          <button class="filter-btn" data-filter="sixes"><i class="fas fa-star"></i> Sixes</button>
+        </div>
+      </div>
+
+      <div class="leaderboard-container">
+        <div class="podium">
+          <div class="podium-place second" id="podium-2">
+            <div class="podium-avatar">
+              <i class="fas fa-user-circle"></i>
+              <div class="rank-badge silver">2</div>
+            </div>
+            <div class="podium-name">-</div>
+            <div class="podium-score">0</div>
+            <div class="podium-base">
+              <i class="fas fa-medal" style="color: #c0c0c0;"></i>
+            </div>
+          </div>
+
+          <div class="podium-place first" id="podium-1">
+            <div class="podium-avatar">
+              <i class="fas fa-user-circle"></i>
+              <div class="rank-badge gold">1</div>
+            </div>
+            <div class="podium-name">-</div>
+            <div class="podium-score">0</div>
+            <div class="podium-base">
+              <i class="fas fa-crown" style="color: #ffd700;"></i>
+            </div>
+          </div>
+
+          <div class="podium-place third" id="podium-3">
+            <div class="podium-avatar">
+              <i class="fas fa-user-circle"></i>
+              <div class="rank-badge bronze">3</div>
+            </div>
+            <div class="podium-name">-</div>
+            <div class="podium-score">0</div>
+            <div class="podium-base">
+              <i class="fas fa-medal" style="color: #cd7f32;"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="leaderboard-list" id="leaderboard-list">
+          <!-- Populated dynamically -->
         </div>
       </div>
     </div>
@@ -320,6 +392,108 @@
       <p class="error-message" id="error-message">An error occurred.</p>
       <div class="error-buttons">
         <button class="error-btn error-btn-ok" id="error-ok">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h3><i class="fas fa-cricket"></i> Cricket Performance Analyzer</h3>
+        <p>Advanced analytics platform for tracking and comparing cricket player statistics with real-time calculations and AI-powered insights.</p>
+        <div class="tech-stack">
+          <span class="tech-badge">HTML5</span>
+          <span class="tech-badge">CSS3</span>
+          <span class="tech-badge">JavaScript</span>
+          <span class="tech-badge">Chart.js</span>
+        </div>
+      </div>
+
+      <div class="footer-section">
+        <h3>Quick Links</h3>
+        <ul class="footer-links">
+          <li><a href="#dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+          <li><a href="#add-player"><i class="fas fa-user-plus"></i> Add Player</a></li>
+          <li><a href="#statistics"><i class="fas fa-table"></i> Statistics</a></li>
+          <li><a href="#analytics"><i class="fas fa-chart-pie"></i> Analytics</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-section">
+        <h3>Features</h3>
+        <ul class="footer-links">
+          <li><i class="fas fa-check-circle"></i> Real-time Calculations</li>
+          <li><i class="fas fa-check-circle"></i> Player Comparison</li>
+          <li><i class="fas fa-check-circle"></i> CSV Import/Export</li>
+          <li><i class="fas fa-check-circle"></i> AI Assistant</li>
+        </ul>
+      </div>
+
+      <div class="footer-section">
+        <h3>Connect</h3>
+        <div class="social-links">
+          <a href="https://linkedin.com/in/charan-kumar-9b20a8378" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" class="social-linkedin">
+            <i class="fab fa-linkedin"></i>
+            <span>LinkedIn</span>
+          </a>
+          <a href="https://github.com/charan-kumar99" target="_blank" rel="noopener noreferrer" aria-label="GitHub" class="social-github">
+            <i class="fab fa-github"></i>
+            <span>GitHub</span>
+          </a>
+          <a href="https://www.instagram.com/chanu_xd/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="social-instagram">
+            <i class="fab fa-instagram"></i>
+            <span>Instagram</span>
+          </a>
+        </div>
+        <div class="footer-info">
+          <p><i class="fas fa-code"></i> Built with HTML, CSS & JavaScript</p>
+          <p><i class="fas fa-map-marker-alt"></i> India</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; <span id="copyright-year"></span> Cricket Performance Analyzer. Developed with <i class="fas fa-heart"></i> by <a href="https://github.com/charan-kumar99" target="_blank" rel="noopener noreferrer">Charan Kumar</a></p>
+      <p class="footer-version">Version 2.0.0 | <a href="https://github.com/charan-kumar99/Cricket-Performance-Analyzer" target="_blank" rel="noopener noreferrer">View on GitHub</a></p>
+    </div>
+  </footer>
+
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Onboarding Modal -->
+  <div id="onboarding-modal" class="onboarding-modal">
+    <div class="onboarding-content">
+      <div class="onboarding-header">
+        <div class="icon">🏏</div>
+        <h2>Welcome to Cricket Performance Analyzer Pro!</h2>
+        <p>Your ultimate tool for cricket statistics and performance tracking</p>
+      </div>
+      <ul class="onboarding-features">
+        <li>
+          <i class="fas fa-chart-line"></i>
+          <span>Real-time performance analytics and insights</span>
+        </li>
+        <li>
+          <i class="fas fa-users"></i>
+          <span>Compare players and track statistics</span>
+        </li>
+        <li>
+          <i class="fas fa-robot"></i>
+          <span>AI-powered assistant for quick queries</span>
+        </li>
+        <li>
+          <i class="fas fa-file-export"></i>
+          <span>Import/Export data via CSV</span>
+        </li>
+        <li>
+          <i class="fas fa-keyboard"></i>
+          <span>Keyboard shortcuts for power users</span>
+        </li>
+      </ul>
+      <div class="onboarding-actions">
+        <button class="btn btn-primary" onclick="closeOnboarding()">
+          <i class="fas fa-rocket"></i> Get Started
+        </button>
       </div>
     </div>
   </div>
