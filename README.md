@@ -43,28 +43,6 @@ A sleek, professional web application for tracking, analyzing, and comparing cri
 
 ---
 
-## 📸 Screenshots
-
-![Dashboard](assets/dashboard_view.png)  
-*Dashboard View*
-
-![Add Player](assets/add_player_view.png)  
-*Add Player View*
-
-![Comparison](assets/comparison_view.png)  
-*Comparison View*
-
-![Statistics](assets/statistics_view.png)  
-*Statistics View*
-
-![Analytics](assets/analytics_view.png)  
-*Analytics View*
-
-![AI Assistant](assets/ai_assistant_view.png)  
-*AI Assistant View*
-
----
-
 ## 💻 Quick Start
 
 ### Installation

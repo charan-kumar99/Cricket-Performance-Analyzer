@@ -1,501 +1,513 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Cricket Performance Analyzer Pro</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css  ">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="script.js" defer></script>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <div class="logo">
-        <i class="fas fa-cricket" aria-hidden="true"></i>
-        <h1>Cricket Performance Analyzer Pro</h1>
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="navbar-container">
+      <div class="logo-section">
+        <div class="logo-icon">
+          <i class="fas fa-baseball-ball"></i>
+          <i class="fas fa-baseball-bat-ball"></i>
+        </div>
+        <div class="logo-text">
+          <h1>Cricket Analyzer</h1>
+          <p>Performance Tracking</p>
+        </div>
       </div>
-      <p class="subtitle">Advanced Analytics • Strike Rate • Boundary Metrics • Player Comparisons</p>
-    </header>
 
-    <div class="tabs">
-      <ul>
-        <li><a href="#dashboard" class="active">Dashboard</a></li>
-        <li><a href="#leaderboard">Leaderboard</a></li>
-        <li><a href="#add-player">Add Player</a></li>
-        <li><a href="#comparison">Comparison</a></li>
-        <li><a href="#statistics">Statistics</a></li>
-        <li><a href="#analytics">Analytics</a></li>
-        <li><a href="#ai-assistant">AI Assistant</a></li>
+      <ul class="nav-menu" role="navigation" aria-label="Main Navigation">
+        <li><a href="#dashboard" class="active" data-page="dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+        <li><a href="#add-player" data-page="add-player"><i class="fas fa-user-plus"></i> Add Player</a></li>
+        <li><a href="#statistics" data-page="statistics"><i class="fas fa-table"></i> Statistics</a></li>
+        <li><a href="#analytics" data-page="analytics"><i class="fas fa-chart-line"></i> Analytics</a></li>
+        <li><a href="#leaderboard" data-page="leaderboard"><i class="fas fa-trophy"></i> Leaderboard</a></li>
+        <li><a href="#ai-assistant" data-page="ai-assistant"><i class="fas fa-robot"></i> AI Assistant</a></li>
       </ul>
+
+      <button class="mobile-toggle" aria-label="Toggle menu"><i class="fas fa-bars"></i></button>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTAINER -->
+  <div class="container">
+    <!-- HERO -->
+    <section class="hero">
+      <h2>Advanced Cricket Analytics</h2>
+      <p>Track, analyze, and compare player performance with powerful insights</p>
+    </section>
+
+    <!-- STATS CARDS -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-users"></i></div>
+        <div class="stat-value" id="total-players">0</div>
+        <div class="stat-label">Total Players</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-running"></i></div>
+        <div class="stat-value" id="total-runs">0</div>
+        <div class="stat-label">Total Runs</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-bolt"></i></div>
+        <div class="stat-value" id="avg-strike-rate">0</div>
+        <div class="stat-label">Avg Strike Rate</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-baseball-ball"></i></div>
+        <div class="stat-value" id="total-boundaries">0</div>
+        <div class="stat-label">Total Boundaries</div>
+      </div>
     </div>
 
-    <div id="dashboard" class="tab-content">
-      <div class="card">
-        <h2><i class="fas fa-tachometer-alt" aria-hidden="true"></i> Dashboard</h2>
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon"><i class="fas fa-users" aria-hidden="true"></i></div>
-            <div class="stat-content">
-              <div class="stat-value" id="total-players">0</div>
-              <div class="stat-label">Total Players</div>
-            </div>
-          </div>
+    <!-- DASHBOARD -->
+    <section id="dashboard" class="section active">
+      <div class="section-header">
+        <h3><i class="fas fa-home"></i> Dashboard</h3>
+      </div>
 
-          <div class="stat-card">
-            <div class="stat-icon"><i class="fas fa-running" aria-hidden="true"></i></div>
-            <div class="stat-content">
-              <div class="stat-value" id="total-runs">0</div>
-              <div class="stat-label">Total Runs</div>
-            </div>
-          </div>
+      <div class="potm-container">
+        <div class="custom-select-wrapper">
+          <div class="custom-dropdown" data-for="potm-select"></div>
+          <select id="potm-select" class="native-hidden" onchange="setPlayerOfMatch()">
+            <option value="">-- Select Star Player --</option>
+          </select>
+        </div>
 
-          <div class="stat-card">
-            <div class="stat-icon"><i class="fas fa-bolt" aria-hidden="true"></i></div>
-            <div class="stat-content">
-              <div class="stat-value" id="avg-strike-rate">0</div>
-              <div class="stat-label">Avg Strike Rate</div>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon"><i class="fas fa-baseball-ball" aria-hidden="true"></i></div>
-            <div class="stat-content">
-              <div class="stat-value" id="total-boundaries">0</div>
-              <div class="stat-label">Total Boundaries</div>
-            </div>
+        <div class="potm-display" id="potm-display">
+          <div class="potm-empty">
+            <i class="fas fa-trophy"></i>
+            <p>Select a player to highlight as Player of the Match</p>
           </div>
         </div>
       </div>
+    </section>
 
-      <!-- NEW FEATURE: PLAYER OF THE MATCH -->
-      <div class="card player-of-match-card">
-        <h2><i class="fas fa-star"></i> Player of the Match</h2>
-        <div class="potm-container">
-          <div class="potm-selector">
-            <label for="potm-select">Select Star Player:</label>
-            <select id="potm-select" onchange="setPlayerOfMatch()">
-              <option value="">-- Choose Player --</option>
+    <!-- ADD PLAYER -->
+    <section id="add-player" class="section">
+      <div class="section-header">
+        <h3><i class="fas fa-user-plus"></i> Add Player</h3>
+      </div>
+
+      <form id="player-form">
+        <div class="form-grid">
+          <div class="input-group">
+            <input type="text" id="player-name" placeholder=" " required>
+            <label for="player-name">Player Name</label>
+            <div class="input-highlight"></div>
+          </div>
+
+          <div class="input-group">
+            <input type="text" id="team" placeholder=" " required>
+            <label for="team">Team Name</label>
+            <div class="input-highlight"></div>
+          </div>
+
+          <div class="input-group">
+            <input type="number" id="runs" min="0" placeholder=" " required>
+            <label for="runs">Runs</label>
+            <div class="input-highlight"></div>
+            <div class="spinner-buttons">
+              <div class="spinner-btn" onclick="stepUp('runs')">▲</div>
+              <div class="spinner-btn" onclick="stepDown('runs')">▼</div>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <input type="number" id="balls" min="0" placeholder=" " required>
+            <label for="balls">Balls</label>
+            <div class="input-highlight"></div>
+            <div class="spinner-buttons">
+              <div class="spinner-btn" onclick="stepUp('balls')">▲</div>
+              <div class="spinner-btn" onclick="stepDown('balls')">▼</div>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <input type="number" id="fours" min="0" placeholder=" " required>
+            <label for="fours">Fours</label>
+            <div class="input-highlight"></div>
+            <div class="spinner-buttons">
+              <div class="spinner-btn" onclick="stepUp('fours')">▲</div>
+              <div class="spinner-btn" onclick="stepDown('fours')">▼</div>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <input type="number" id="sixes" min="0" placeholder=" " required>
+            <label for="sixes">Sixes</label>
+            <div class="input-highlight"></div>
+            <div class="spinner-buttons">
+              <div class="spinner-btn" onclick="stepUp('sixes')">▲</div>
+              <div class="spinner-btn" onclick="stepDown('sixes')">▼</div>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <div class="custom-dropdown" data-for="match-type"></div>
+            <select id="match-type" class="native-hidden">
+              <option value="T20">T20</option>
+              <option value="ODI">ODI</option>
+              <option value="Test">Test</option>
             </select>
-          </div>
-          <div class="potm-display" id="potm-display">
-            <div class="potm-empty">
-              <i class="fas fa-trophy"></i>
-              <p>Select a player to highlight as Player of the Match</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- NEW LEADERBOARD TAB -->
-    <div id="leaderboard" class="tab-content" style="display: none;">
-      <div class="leaderboard-header">
-        <h2><i class="fas fa-trophy"></i> Top Performers</h2>
-        <div class="leaderboard-filters">
-          <button class="filter-btn active" data-filter="runs"><i class="fas fa-running"></i> Runs</button>
-          <button class="filter-btn" data-filter="strike-rate"><i class="fas fa-bolt"></i> Strike Rate</button>
-          <button class="filter-btn" data-filter="boundaries"><i class="fas fa-border-all"></i> Boundaries</button>
-          <button class="filter-btn" data-filter="sixes"><i class="fas fa-star"></i> Sixes</button>
-        </div>
-      </div>
-
-      <div class="leaderboard-container">
-        <div class="podium">
-          <div class="podium-place second" id="podium-2">
-            <div class="podium-avatar">
-              <i class="fas fa-user-circle"></i>
-              <div class="rank-badge silver">2</div>
-            </div>
-            <div class="podium-name">-</div>
-            <div class="podium-score">0</div>
-            <div class="podium-base">
-              <i class="fas fa-medal" style="color: #c0c0c0;"></i>
-            </div>
-          </div>
-
-          <div class="podium-place first" id="podium-1">
-            <div class="podium-avatar">
-              <i class="fas fa-user-circle"></i>
-              <div class="rank-badge gold">1</div>
-            </div>
-            <div class="podium-name">-</div>
-            <div class="podium-score">0</div>
-            <div class="podium-base">
-              <i class="fas fa-crown" style="color: #ffd700;"></i>
-            </div>
-          </div>
-
-          <div class="podium-place third" id="podium-3">
-            <div class="podium-avatar">
-              <i class="fas fa-user-circle"></i>
-              <div class="rank-badge bronze">3</div>
-            </div>
-            <div class="podium-name">-</div>
-            <div class="podium-score">0</div>
-            <div class="podium-base">
-              <i class="fas fa-medal" style="color: #cd7f32;"></i>
-            </div>
+            <div class="input-highlight"></div>
           </div>
         </div>
 
-        <div class="leaderboard-list" id="leaderboard-list">
-          <!-- Populated dynamically -->
-        </div>
-      </div>
-    </div>
-
-    <div id="add-player" class="tab-content" style="display: none;">
-      <div class="card">
-        <h2><i class="fas fa-user-plus" aria-hidden="true"></i> Add Player Data</h2>
-        <form id="player-form">
-          <div class="form-grid">
-            <div>
-              <input type="text" id="player-name" placeholder="Player Name" required>
-            </div>
-            <div>
-              <input type="text" id="team" placeholder="Team Name">
-            </div>
-            <div class="number-input-wrapper">
-              <input type="number" id="runs" min="0" placeholder="Runs" required>
-              <div class="number-controls">
-                <span class="number-btn" onclick="incrementValue('runs')">▲</span>
-                <span class="number-btn" onclick="decrementValue('runs')">▼</span>
-              </div>
-            </div>
-            <div class="number-input-wrapper">
-              <input type="number" id="balls" min="0" placeholder="Balls" required>
-              <div class="number-controls">
-                <span class="number-btn" onclick="incrementValue('balls')">▲</span>
-                <span class="number-btn" onclick="decrementValue('balls')">▼</span>
-              </div>
-            </div>
-            <div class="number-input-wrapper">
-              <input type="number" id="fours" min="0" placeholder="Fours">
-              <div class="number-controls">
-                <span class="number-btn" onclick="incrementValue('fours')">▲</span>
-                <span class="number-btn" onclick="decrementValue('fours')">▼</span>
-              </div>
-            </div>
-            <div class="number-input-wrapper">
-              <input type="number" id="sixes" min="0" placeholder="Sixes">
-              <div class="number-controls">
-                <span class="number-btn" onclick="incrementValue('sixes')">▲</span>
-                <span class="number-btn" onclick="decrementValue('sixes')">▼</span>
-              </div>
-            </div>
-            <div>
-              <select id="match-type">
-                <option value="T20">T20</option>
-                <option value="ODI">ODI</option>
-                <option value="Test">Test</option>
-              </select>
-            </div>
+        <div class="form-actions">
+          <div class="btn-container">
+            <button type="submit" class="styled-button">
+              <span class="btn-text"><i class="fas fa-user-plus"></i> Add Player</span>
+            </button>
           </div>
-          <div class="form-actions">
-            <button type="submit" class="btn btn-primary"><i class="fas fa-plus" aria-hidden="true"></i> Add Player</button>
-            <label class="btn btn-secondary">
-              <i class="fas fa-file-import" aria-hidden="true"></i> Import CSV
-              <input type="file" id="csv-input" accept=".csv" style="display: none;">
+
+          <div class="btn-container">
+            <label class="styled-button">
+              <span class="btn-text"><i class="fas fa-file-import"></i> Import CSV</span>
+              <input type="file" id="csv-input" accept=".csv" style="display:none;">
             </label>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <!-- STATISTICS -->
+    <section id="statistics" class="section">
+      <div class="section-header">
+        <h3><i class="fas fa-table"></i> Statistics</h3>
+
+        <div class="filters">
+          <div class="custom-dropdown" data-for="match-filter"></div>
+          <select id="match-filter" class="native-hidden">
+            <option value="all">All Formats</option>
+            <option value="T20">T20</option>
+            <option value="ODI">ODI</option>
+            <option value="Test">Test</option>
+          </select>
+
+          <!-- Animated Search Box -->
+          <div id="search-container">
+            <div class="glow"></div>
+            <div class="darkBorderBg"></div>
+            <div class="darkBorderBg"></div>
+            <div class="darkBorderBg"></div>
+            <div class="white"></div>
+            <div class="border"></div>
+
+            <div id="main">
+              <input placeholder="Search player" type="text" name="text" class="input" id="search-box"/>
+              <div id="input-mask"></div>
+              <div id="pink-mask"></div>
+              <div class="filterBorder"></div>
+              <div id="filter-icon">
+                <svg preserveAspectRatio="none" height="27" width="27" viewBox="4.8 4.56 14.832 15.408" fill="none">
+                  <path d="M8.16 6.65002H15.83C16.47 6.65002 16.99 7.17002 16.99 7.81002V9.09002C16.99 9.56002 16.7 10.14 16.41 10.43L13.91 12.64C13.56 12.93 13.33 13.51 13.33 13.98V16.48C13.33 16.83 13.1 17.29 12.81 17.47L12 17.98C11.24 18.45 10.2 17.92 10.2 16.99V13.91C10.2 13.5 9.97 12.98 9.73 12.69L7.52 10.36C7.23 10.08 7 9.55002 7 9.20002V7.87002C7 7.17002 7.52 6.65002 8.16 6.65002Z" stroke="#00ff88" stroke-width="1" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+              </div>
+              <div id="search-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" viewBox="0 0 24 24" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" height="24" fill="none" class="feather feather-search">
+                  <circle stroke="url(#search)" r="8" cy="11" cx="11"></circle>
+                  <line stroke="url(#searchl)" y2="16.65" y1="22" x2="16.65" x1="22"></line>
+                  <defs>
+                    <linearGradient gradientTransform="rotate(50)" id="search">
+                      <stop stop-color="#00ff88" offset="0%"></stop>
+                      <stop stop-color="#00cc6a" offset="50%"></stop>
+                    </linearGradient>
+                    <linearGradient id="searchl">
+                      <stop stop-color="#00cc6a" offset="0%"></stop>
+                      <stop stop-color="#00ff88" offset="50%"></stop>
+                    </linearGradient>
+                  </defs>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Player</th>
+              <th>Team</th>
+              <th>Format</th>
+              <th>Runs</th>
+              <th>Balls</th>
+              <th>4s</th>
+              <th>6s</th>
+              <th>Strike Rate</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="scorecard-body"></tbody>
+        </table>
+      </div>
+
+      <div class="form-actions">
+        <div class="btn-container">
+          <button class="styled-button danger" onclick="confirmClearAll()">
+            <span class="btn-text"><i class="fas fa-trash"></i> Clear All</span>
+          </button>
+        </div>
+
+        <div class="btn-container">
+          <button class="styled-button secondary" onclick="downloadCSV()">
+            <span class="btn-text"><i class="fas fa-download"></i> Export CSV</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ANALYTICS -->
+    <section id="analytics" class="section">
+      <div class="section-header">
+        <h3><i class="fas fa-chart-line"></i> Analytics</h3>
+      </div>
+
+      <div class="chart-grid">
+        <div class="chart-wrapper">
+          <canvas id="runsChart"></canvas>
+        </div>
+        <div class="chart-wrapper">
+          <canvas id="strikeChart"></canvas>
+        </div>
+        <div class="chart-wrapper">
+          <canvas id="boundaryChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- LEADERBOARD -->
+    <section id="leaderboard" class="section">
+      <div class="section-header">
+        <h3><i class="fas fa-trophy"></i> Leaderboard</h3>
+
+        <div class="leaderboard-filters">
+          <button class="filter-btn active" data-filter="runs">Runs</button>
+          <button class="filter-btn" data-filter="strike-rate">Strike Rate</button>
+          <button class="filter-btn" data-filter="boundaries">Boundaries</button>
+          <button class="filter-btn" data-filter="boundary-percent">Boundary %</button>
+        </div>
+      </div>
+
+      <div class="podium">
+        <div class="podium-place second" id="podium-2">
+          <div class="podium-rank">2</div>
+          <div class="podium-avatar"><i class="fas fa-user"></i></div>
+          <div class="podium-name">-</div>
+          <div class="podium-score">0</div>
+        </div>
+
+        <div class="podium-place first" id="podium-1">
+          <div class="podium-rank">1</div>
+          <div class="podium-avatar"><i class="fas fa-user"></i></div>
+          <div class="podium-name">-</div>
+          <div class="podium-score">0</div>
+        </div>
+
+        <div class="podium-place third" id="podium-3">
+          <div class="podium-rank">3</div>
+          <div class="podium-avatar"><i class="fas fa-user"></i></div>
+          <div class="podium-name">-</div>
+          <div class="podium-score">0</div>
+        </div>
+      </div>
+
+      <div class="leaderboard-list" id="leaderboard-list"></div>
+    </section>
+
+    <!-- AI ASSISTANT -->
+    <section id="ai-assistant" class="section">
+      <div class="section-header">
+        <h3><i class="fas fa-robot"></i> AI Assistant</h3>
+      </div>
+
+      <div class="chat-container">
+        <div id="chat-messages"></div>
+
+        <form id="ai-form">
+          <input type="text" id="ai-input" 
+                 placeholder="Ask anything... (e.g., Top 5 scorers, Compare Virat & Rohit)" 
+                 autocomplete="off">
+          <div class="btn-container">
+            <button type="submit" class="styled-button">
+              <span class="btn-text"><i class="fas fa-paper-plane"></i> Send</span>
+            </button>
           </div>
         </form>
       </div>
-    </div>
-
-    <div id="comparison" class="tab-content" style="display: none;">
-      <div class="card">
-        <h2><i class="fas fa-balance-scale" aria-hidden="true"></i> Player Comparison</h2>
-        <div class="comparison-controls">
-          <select id="player1-select" class="comparison-select">
-            <option value="">Select Player 1</option>
-          </select>
-          <span class="vs-text">VS</span>
-          <select id="player2-select" class="comparison-select">
-            <option value="">Select Player 2</option>
-          </select>
-          <button id="compare-btn" class="btn btn-primary" disabled><i class="fas fa-chart-bar" aria-hidden="true"></i> Compare</button>
-        </div>
-        <div id="comparison-chart-container" style="display: none;">
-          <div class="chart-wrapper">
-            <canvas id="comparison-chart"></canvas>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="statistics" class="tab-content" style="display: none;">
-      <div class="card">
-        <div class="section-header">
-          <h2><i class="fas fa-table" aria-hidden="true"></i> Player Statistics</h2>
-          <div class="filters">
-            <select id="match-filter">
-              <option value="all">All Formats</option>
-              <option value="T20">T20</option>
-              <option value="ODI">ODI</option>
-              <option value="Test">Test</option>
-            </select>
-            <select id="team-filter">
-              <option value="all">All Teams</option>
-            </select>
-            <select id="sort-by">
-              <option value="name">Sort by Name</option>
-              <option value="runs">Sort by Runs</option>
-              <option value="strike">Sort by Strike Rate</option>
-              <option value="boundaries">Sort by Boundaries</option>
-            </select>
-            <input type="text" id="search-box" placeholder="Search players...">
-            <button class="btn btn-secondary" id="clear-filters"><i class="fas fa-filter-circle-xmark" aria-hidden="true"></i> Clear</button>
-          </div>
-        </div>
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>Player</th>
-                <th>Type</th>
-                <th>Team</th>
-                <th>Runs</th>
-                <th>Balls</th>
-                <th>4s</th>
-                <th>6s</th>
-                <th>Strike Rate</th>
-                <th>Boundary %</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="scorecard-body"></tbody>
-          </table>
-        </div>
-        <div class="form-actions">
-          <button class="btn btn-danger" onclick="clearAll()"><i class="fas fa-trash-alt" aria-hidden="true"></i> Clear All</button>
-          <button class="btn btn-success" onclick="downloadCSV()"><i class="fas fa-file-export" aria-hidden="true"></i> Export CSV</button>
-        </div>
-      </div>
-    </div>
-
-    <div id="analytics" class="tab-content" style="display: none;">
-      <div class="card">
-        <h2><i class="fas fa-chart-pie" aria-hidden="true"></i> Visual Analytics</h2>
-        <div id="no-data-message" class="no-data-message" style="display: none;">
-          <p>No player data available. Add players to see analytics.</p>
-        </div>
-        <div class="chart-grid" id="chart-container">
-          <div class="chart-wrapper">
-            <canvas id="runsChart"></canvas>
-          </div>
-          <div class="chart-wrapper">
-            <canvas id="strikeChart"></canvas>
-          </div>
-          <div class="chart-wrapper">
-            <canvas id="boundaryChart"></canvas>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="ai-assistant" class="tab-content" style="display: none;">
-      <div class="card">
-        <h2><i class="fas fa-robot" aria-hidden="true"></i> AI Performance Assistant</h2>
-        <div class="ai-suggestions">
-          <span class="suggestion-chip" onclick="setAIQuery('Best Strike Rate')">🎯 Best Strike Rate</span>
-          <span class="suggestion-chip" onclick="setAIQuery('Top Scorers')">🏆 Top Scorers</span>
-          <span class="suggestion-chip" onclick="setAIQuery('Average Stats')">📊 Average Stats</span>
-          <span class="suggestion-chip" onclick="setAIQuery('Most Boundaries')">🎪 Most Boundaries</span>
-          <span class="suggestion-chip" onclick="setAIQuery('Compare')">⚔️ Compare Players</span>
-        </div>
-        <div class="ai-input-container">
-          <input type="text" id="ai-input" placeholder="Ask about player stats... (e.g., 'Best Strike Rate' or 'Compare Virat and Rohit')">
-          <button class="btn btn-primary" onclick="handleAI()"><i class="fas fa-search" aria-hidden="true"></i></button>
-        </div>
-        <div class="ai-message" id="ai-response" aria-live="polite">🤖 Ask me about player performance!</div>
-      </div>
-    </div>
+    </section>
   </div>
 
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h4>Cricket Performance Analyzer</h4>
+        <p>Advanced analytics platform for tracking and comparing cricket player statistics.</p>
+      </div>
+
+      <div class="footer-section">
+        <h4>Connect With Me</h4>
+        <div class="social-links">
+          <a href="https://github.com/charan-kumar99" target="_blank"><i class="fab fa-github"></i></a>
+          <a href="https://www.instagram.com/chanu_xd/" target="_blank"><i class="fab fa-instagram"></i></a>
+          <a href="https://www.linkedin.com/in/charan-kumar-9b20a8378" target="_blank"><i class="fab fa-linkedin"></i></a>
+          <a href="mailto:charansuvarna99@gmail.com"><i class="fas fa-envelope"></i></a>
+        </div>
+      </div>
+
+      <div class="footer-section">
+        <h4>Quick Links</h4>
+        <ul class="footer-links">
+          <li><a href="https://github.com/charan-kumar99"><i class="fab fa-github"></i> GitHub</a></li>
+          <li><a href="https://github.com/charan-kumar99/Cricket-Performance-Analyzer"><i class="fas fa-code-branch"></i> Repository</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; <span id="copyright-year"></span>
+      Cricket Performance Analyzer. Built with <i class="fas fa-heart"></i> by Charan Kumar</p>
+    </div>
+  </footer>
+
+  <!-- EDIT MODAL -->
   <div id="edit-modal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
-        <h2>Edit Player</h2>
-        <button class="close-btn" onclick="closeModal()" aria-label="Close modal">×</button>
+        <h3>Edit Player</h3>
+        <button class="close-btn-simple" onclick="closeModal()">×</button>
       </div>
+
       <form id="edit-form">
         <input type="hidden" id="edit-index">
+
         <div class="form-grid">
-          <div>
-            <input type="text" id="edit-name" placeholder="Player Name" required>
+          <div class="input-group">
+            <input type="text" id="edit-name" placeholder=" " required>
+            <label for="edit-name">Player Name</label>
+            <div class="input-highlight"></div>
           </div>
-          <div>
-            <input type="text" id="edit-team" placeholder="Team Name">
+
+          <div class="input-group">
+            <input type="text" id="edit-team" placeholder=" " required>
+            <label for="edit-team">Team</label>
+            <div class="input-highlight"></div>
           </div>
-          <div class="number-input-wrapper">
-            <input type="number" id="edit-runs" min="0" placeholder="Runs" required>
-            <div class="number-controls">
-              <span class="number-btn" onclick="incrementValue('edit-runs')">▲</span>
-              <span class="number-btn" onclick="decrementValue('edit-runs')">▼</span>
+
+          <div class="input-group">
+            <input type="number" id="edit-runs" min="0" placeholder=" " required>
+            <label for="edit-runs">Runs</label>
+            <div class="input-highlight"></div>
+            <div class="spinner-buttons">
+              <div class="spinner-btn" onclick="stepUp('edit-runs')">▲</div>
+              <div class="spinner-btn" onclick="stepDown('edit-runs')">▼</div>
             </div>
           </div>
-          <div class="number-input-wrapper">
-            <input type="number" id="edit-balls" min="0" placeholder="Balls" required>
-            <div class="number-controls">
-              <span class="number-btn" onclick="incrementValue('edit-balls')">▲</span>
-              <span class="number-btn" onclick="decrementValue('edit-balls')">▼</span>
+
+          <div class="input-group">
+            <input type="number" id="edit-balls" min="0" placeholder=" " required>
+            <label for="edit-balls">Balls</label>
+            <div class="input-highlight"></div>
+            <div class="spinner-buttons">
+              <div class="spinner-btn" onclick="stepUp('edit-balls')">▲</div>
+              <div class="spinner-btn" onclick="stepDown('edit-balls')">▼</div>
             </div>
           </div>
-          <div class="number-input-wrapper">
-            <input type="number" id="edit-fours" min="0" placeholder="Fours">
-            <div class="number-controls">
-              <span class="number-btn" onclick="incrementValue('edit-fours')">▲</span>
-              <span class="number-btn" onclick="decrementValue('edit-fours')">▼</span>
+
+          <div class="input-group">
+            <input type="number" id="edit-fours" min="0" placeholder=" " required>
+            <label for="edit-fours">Fours</label>
+            <div class="input-highlight"></div>
+            <div class="spinner-buttons">
+              <div class="spinner-btn" onclick="stepUp('edit-fours')">▲</div>
+              <div class="spinner-btn" onclick="stepDown('edit-fours')">▼</div>
             </div>
           </div>
-          <div class="number-input-wrapper">
-            <input type="number" id="edit-sixes" min="0" placeholder="Sixes">
-            <div class="number-controls">
-              <span class="number-btn" onclick="incrementValue('edit-sixes')">▲</span>
-              <span class="number-btn" onclick="decrementValue('edit-sixes')">▼</span>
+
+          <div class="input-group">
+            <input type="number" id="edit-sixes" min="0" placeholder=" " required>
+            <label for="edit-sixes">Sixes</label>
+            <div class="input-highlight"></div>
+            <div class="spinner-buttons">
+              <div class="spinner-btn" onclick="stepUp('edit-sixes')">▲</div>
+              <div class="spinner-btn" onclick="stepDown('edit-sixes')">▼</div>
             </div>
           </div>
-          <div>
-            <select id="edit-match-type">
+
+          <div class="input-group">
+            <div class="custom-dropdown" data-for="edit-match-type"></div>
+            <select id="edit-match-type" class="native-hidden">
               <option value="T20">T20</option>
               <option value="ODI">ODI</option>
               <option value="Test">Test</option>
             </select>
+            <div class="input-highlight"></div>
           </div>
         </div>
+
         <div class="form-actions">
-          <button type="submit" class="btn btn-success"><i class="fas fa-save" aria-hidden="true"></i> Save</button>
-          <button type="button" class="btn btn-secondary" onclick="closeModal()"><i class="fas fa-times" aria-hidden="true"></i> Cancel</button>
+          <div class="btn-container">
+            <button type="submit" class="styled-button">
+              <span class="btn-text"><i class="fas fa-save"></i> Save Player</span>
+            </button>
+          </div>
+
+          <div class="btn-container">
+            <button type="button" class="styled-button secondary" onclick="closeModal()">
+              <span class="btn-text"><i class="fas fa-times"></i> Cancel</span>
+            </button>
+          </div>
         </div>
       </form>
     </div>
   </div>
 
-  <div id="confirm-dialog" class="confirm-dialog">
-    <div class="confirm-content">
-      <div class="confirm-icon" id="confirm-icon">⚠️</div>
-      <h2 class="confirm-title" id="confirm-title">Confirm Action</h2>
-      <p class="confirm-message" id="confirm-message">Are you sure?</p>
-      <div class="confirm-buttons">
-        <button class="confirm-btn confirm-btn-yes" id="confirm-yes">Yes, Proceed</button>
-        <button class="confirm-btn confirm-btn-no" id="confirm-no">Cancel</button>
+  <!-- CONFIRMATION MODAL -->
+  <div id="confirm-modal" class="modal">
+    <div class="modal-content confirm-modal-content">
+      <div class="modal-header">
+        <h3 id="confirm-title">Confirm Action</h3>
+        <button class="close-btn-simple" onclick="closeConfirmModal()">×</button>
+      </div>
+      
+      <div class="confirm-message">
+        <i class="fas fa-exclamation-triangle"></i>
+        <p id="confirm-text">Are you sure?</p>
+      </div>
+
+      <div class="form-actions confirm-actions">
+        <div class="btn-container">
+          <button class="styled-button" onclick="executeConfirmAction()">
+            <span class="btn-text"><i class="fas fa-check"></i> Confirm</span>
+          </button>
+        </div>
+
+        <div class="btn-container">
+          <button class="styled-button secondary" onclick="closeConfirmModal()">
+            <span class="btn-text"><i class="fas fa-times"></i> Cancel</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>
 
-  <div id="error-dialog" class="error-dialog">
-    <div class="error-content">
-      <div class="error-icon">❌</div>
-      <h2 class="error-title">Validation Error</h2>
-      <p class="error-message" id="error-message">An error occurred.</p>
-      <div class="error-buttons">
-        <button class="error-btn error-btn-ok" id="error-ok">OK</button>
-      </div>
-    </div>
-  </div>
-
-  <footer class="footer">
-    <div class="footer-content">
-      <div class="footer-section">
-        <h3><i class="fas fa-cricket"></i> Cricket Performance Analyzer</h3>
-        <p>Advanced analytics platform for tracking and comparing cricket player statistics with real-time calculations and AI-powered insights.</p>
-        <div class="tech-stack">
-          <span class="tech-badge">HTML5</span>
-          <span class="tech-badge">CSS3</span>
-          <span class="tech-badge">JavaScript</span>
-          <span class="tech-badge">Chart.js</span>
-        </div>
-      </div>
-
-      <div class="footer-section">
-        <h3>Quick Links</h3>
-        <ul class="footer-links">
-          <li><a href="#dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-          <li><a href="#add-player"><i class="fas fa-user-plus"></i> Add Player</a></li>
-          <li><a href="#statistics"><i class="fas fa-table"></i> Statistics</a></li>
-          <li><a href="#analytics"><i class="fas fa-chart-pie"></i> Analytics</a></li>
-        </ul>
-      </div>
-
-      <div class="footer-section">
-        <h3>Features</h3>
-        <ul class="footer-links">
-          <li><i class="fas fa-check-circle"></i> Real-time Calculations</li>
-          <li><i class="fas fa-check-circle"></i> Player Comparison</li>
-          <li><i class="fas fa-check-circle"></i> CSV Import/Export</li>
-          <li><i class="fas fa-check-circle"></i> AI Assistant</li>
-        </ul>
-      </div>
-
-      <div class="footer-section">
-        <h3>Connect</h3>
-        <div class="social-links">
-          <a href="https://linkedin.com/in/charan-kumar-9b20a8378" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" class="social-linkedin">
-            <i class="fab fa-linkedin"></i>
-            <span>LinkedIn</span>
-          </a>
-          <a href="https://github.com/charan-kumar99" target="_blank" rel="noopener noreferrer" aria-label="GitHub" class="social-github">
-            <i class="fab fa-github"></i>
-            <span>GitHub</span>
-          </a>
-          <a href="https://www.instagram.com/chanu_xd/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="social-instagram">
-            <i class="fab fa-instagram"></i>
-            <span>Instagram</span>
-          </a>
-        </div>
-        <div class="footer-info">
-          <p><i class="fas fa-code"></i> Built with HTML, CSS & JavaScript</p>
-          <p><i class="fas fa-map-marker-alt"></i> India</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="footer-bottom">
-      <p>&copy; <span id="copyright-year"></span> Cricket Performance Analyzer. Developed with <i class="fas fa-heart"></i> by <a href="https://github.com/charan-kumar99" target="_blank" rel="noopener noreferrer">Charan Kumar</a></p>
-      <p class="footer-version">Version 2.0.0 | <a href="https://github.com/charan-kumar99/Cricket-Performance-Analyzer" target="_blank" rel="noopener noreferrer">View on GitHub</a></p>
-    </div>
-  </footer>
-
+  <!-- Toast Container -->
   <div id="toast-container" class="toast-container"></div>
 
-  <!-- Onboarding Modal -->
-  <div id="onboarding-modal" class="onboarding-modal">
-    <div class="onboarding-content">
-      <div class="onboarding-header">
-        <div class="icon">🏏</div>
-        <h2>Welcome to Cricket Performance Analyzer Pro!</h2>
-        <p>Your ultimate tool for cricket statistics and performance tracking</p>
-      </div>
-      <ul class="onboarding-features">
-        <li>
-          <i class="fas fa-chart-line"></i>
-          <span>Real-time performance analytics and insights</span>
-        </li>
-        <li>
-          <i class="fas fa-users"></i>
-          <span>Compare players and track statistics</span>
-        </li>
-        <li>
-          <i class="fas fa-robot"></i>
-          <span>AI-powered assistant for quick queries</span>
-        </li>
-        <li>
-          <i class="fas fa-file-export"></i>
-          <span>Import/Export data via CSV</span>
-        </li>
-        <li>
-          <i class="fas fa-keyboard"></i>
-          <span>Keyboard shortcuts for power users</span>
-        </li>
-      </ul>
-      <div class="onboarding-actions">
-        <button class="btn btn-primary" onclick="closeOnboarding()">
-          <i class="fas fa-rocket"></i> Get Started
-        </button>
-      </div>
-    </div>
-  </div>
+  <script src="script.js" defer></script>
 </body>
 </html>

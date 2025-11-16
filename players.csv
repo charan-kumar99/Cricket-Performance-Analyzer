@@ -1,55 +1,50 @@
-Name,Runs,Balls,Fours,Sixes,Match Type,Team
-Virat Kohli,82,51,6,3,T20,India
-Rohit Sharma,118,59,12,4,T20,India
-KL Rahul,68,45,8,1,T20,India
-Suryakumar Yadav,117,55,9,9,T20,India
-Hardik Pandya,87,42,5,7,T20,India
-Ravindra Jadeja,34,18,2,2,T20,India
-Rishabh Pant,96,53,8,6,T20,India
-Dinesh Karthik,55,27,4,3,T20,India
-Bhuvneshwar Kumar,12,11,1,0,T20,India
-Jasprit Bumrah,8,7,0,0,T20,India
-Mohammed Shami,6,4,0,0,T20,India
-Virat Kohli,133,112,12,2,ODI,India
-Rohit Sharma,159,138,15,3,ODI,India
-Shubman Gill,128,104,13,3,ODI,India
-Shreyas Iyer,113,87,10,4,ODI,India
-Kane Williamson,78,48,8,2,T20,New Zealand
-Martin Guptill,63,39,7,1,T20,New Zealand
-Ross Taylor,50,35,4,1,T20,New Zealand
-Glenn Phillips,45,28,3,2,T20,New Zealand
-Daryl Mitchell,31,19,3,0,T20,New Zealand
-Tim Seifert,28,17,2,1,T20,New Zealand
-Lockie Ferguson,18,12,1,1,T20,New Zealand
-Trent Boult,11,9,1,0,T20,New Zealand
-Adam Milne,15,10,1,1,T20,New Zealand
-Devon Conway,99,56,9,3,T20,New Zealand
-Joe Root,89,52,6,3,T20,England
-Jos Buttler,80,44,6,3,T20,England
-Jason Roy,71,41,6,2,T20,England
-Ben Stokes,52,30,3,2,T20,England
-Moeen Ali,39,24,3,1,T20,England
-Sam Curran,26,16,1,1,T20,England
-Adil Rashid,18,13,1,0,T20,England
-Chris Woakes,22,15,1,1,T20,England
-Jos Buttler,116,53,11,4,T20,England
-David Warner,89,54,7,2,T20,Australia
-Steve Smith,77,48,6,3,T20,Australia
-Glenn Maxwell,70,38,4,4,T20,Australia
-Marcus Stoinis,53,31,3,2,T20,Australia
-Alex Carey,46,27,3,2,T20,Australia
-Mitchell Marsh,41,24,2,2,T20,Australia
-Pat Cummins,18,11,1,1,T20,Australia
-Josh Hazlewood,8,7,0,0,T20,Australia
-Adam Zampa,4,3,0,0,T20,Australia
-David Miller,101,52,7,4,T20,South Africa
-Quinton de Kock,74,45,6,2,T20,South Africa
-Rassie van der Dussen,67,42,5,2,T20,South Africa
-Aiden Markram,54,35,4,1,T20,South Africa
-Kagiso Rabada,15,9,1,0,T20,South Africa
-Anrich Nortje,12,8,1,0,T20,South Africa
-Lungi Ngidi,10,7,0,0,T20,South Africa
-Wayne Parnell,22,14,1,1,T20,South Africa
-Babar Azam,94,56,8,2,T20,Pakistan
-Mohammad Rizwan,89,55,6,3,T20,Pakistan
-Shoaib Malik,45,28,3,1,T20,Pakistan
+1. Virat Kohli,82,51,6,3,T20,India,2025-11-16
+2. Rohit Sharma,118,59,12,4,T20,India,2025-11-16
+3. KL Rahul,68,45,8,1,T20,India,2025-11-16
+4. Suryakumar Yadav,117,55,9,9,T20,India,2025-11-16
+5. Hardik Pandya,87,42,5,7,T20,India,2025-11-16
+6. Shubman Gill,61,38,7,2,T20,India,2025-11-16
+7. Rishabh Pant,54,29,4,4,T20,India,2025-11-16
+8. Shreyas Iyer,76,48,6,3,T20,India,2025-11-16
+9. Ravindra Jadeja,33,18,2,2,T20,India,2025-11-16
+10. Axar Patel,29,16,3,1,T20,India,2025-11-16
+11. Deepak Hooda,41,25,4,1,T20,India,2025-11-16
+12. Ishan Kishan,56,34,5,3,T20,India,2025-11-16
+13. Sanju Samson,44,28,3,2,T20,India,2025-11-16
+14. Washington Sundar,22,17,1,1,T20,India,2025-11-16
+15. Tilak Varma,38,24,4,1,T20,India,2025-11-16
+16. Yashasvi Jaiswal,72,40,7,3,T20,India,2025-11-16
+17. Ruturaj Gaikwad,65,39,8,1,T20,India,2025-11-16
+18. Shivam Dube,49,27,3,3,T20,India,2025-11-16
+19. Jasprit Bumrah,8,10,1,0,T20,India,2025-11-16
+20. Mohammed Shami,6,9,0,0,T20,India,2025-11-16
+21. Arshdeep Singh,12,13,1,0,T20,India,2025-11-16
+22. Umran Malik,4,6,0,0,T20,India,2025-11-16
+23. Kuldeep Yadav,10,11,1,0,T20,India,2025-11-16
+24. Yuzvendra Chahal,7,10,0,0,T20,India,2025-11-16
+25. Mohit Sharma,3,5,0,0,T20,India,2025-11-16
+26. Shardul Thakur,15,12,1,1,T20,India,2025-11-16
+27. Deepak Chahar,18,14,2,0,T20,India,2025-11-16
+28. Rahul Tripathi,47,29,4,2,T20,India,2025-11-16
+29. Manish Pandey,52,34,5,1,T20,India,2025-11-16
+30. Dinesh Karthik,28,16,3,1,T20,India,2025-11-16
+31. Varun Chakravarthy,2,5,0,0,T20,India,2025-11-16
+32. Harshal Patel,26,18,2,1,T20,India,2025-11-16
+33. Prasidh Krishna,5,7,0,0,T20,India,2025-11-16
+34. Krunal Pandya,31,20,2,2,T20,India,2025-11-16
+35. Rishi Dhawan,19,13,2,0,T20,India,2025-11-16
+36. Sandeep Sharma,7,6,1,0,T20,India,2025-11-16
+37. Jaydev Unadkat,6,7,0,0,T20,India,2025-11-16
+38. Venkatesh Iyer,58,33,5,3,T20,India,2025-11-16
+39. Abhishek Sharma,69,37,8,2,T20,India,2025-11-16
+40. Rinku Singh,73,34,6,5,T20,India,2025-11-16
+41. Sarfaraz Khan,46,25,5,2,T20,India,2025-11-16
+42. Rajat Patidar,51,32,4,2,T20,India,2025-11-16
+43. Shahrukh Khan,34,19,2,2,T20,India,2025-11-16
+44. Nitish Rana,48,27,4,2,T20,India,2025-11-16
+45. Mayank Agarwal,39,24,4,1,T20,India,2025-11-16
+46. Devdutt Padikkal,42,28,5,1,T20,India,2025-11-16
+47. Wriddhiman Saha,24,17,3,0,T20,India,2025-11-16
+48. Karun Nair,28,20,2,1,T20,India,2025-11-16
+49. Robin Uthappa,33,22,3,1,T20,India,2025-11-16
+50. MS Dhoni,45,32,3,2,T20,India,2025-11-16
