@@ -1,7 +1,6 @@
 /* ==========================================================
    CRICKET PERFORMANCE ANALYZER – FULL SCRIPT.JS
    ========================================================== */
-
 /* ---------- GLOBAL VARIABLES ---------- */
 let players = [];
 let charts = {
@@ -11,24 +10,9 @@ let charts = {
 };
 let confirmCallback = null;
 
-/* ---------- INITIAL LOAD ---------- */
-document.addEventListener("DOMContentLoaded", () => {
-  loadPlayers();
-  updateDashboardStats();
-  updateTable();
-  updateCharts();
-  initDropdowns();
-  setupNavigation();
-  setupSearchFilter();
-  setCurrentYearFooter();
-  updateLeaderboard("runs");
-  populatePOTMDropdown(); // Initialize POTM dropdown on load
-});
-
 /* ==========================================================
    UTILITY FUNCTIONS
    ========================================================== */
-
 function loadPlayers() {
   const data = localStorage.getItem("players");
   players = data ? JSON.parse(data) : [];
@@ -47,12 +31,10 @@ function showToast(message, type = "success") {
   const toast = document.createElement("div");
   toast.classList.add("toast");
   if (type === "error") toast.classList.add("error");
-
   toast.innerHTML = `
     <span>${message}</span>
     <button class="toast-close" onclick="this.parentElement.remove()">×</button>
   `;
-
   container.appendChild(toast);
   setTimeout(() => toast.remove(), 4000);
 }
@@ -66,20 +48,20 @@ function setCurrentYearFooter() {
    ========================================================== */
 function setupNavigation() {
   const links = document.querySelectorAll(".nav-menu a");
-
   links.forEach(link => {
     link.addEventListener("click", (e) => {
       e.preventDefault();
-      
       links.forEach(l => l.classList.remove("active"));
       link.classList.add("active");
-
       const page = link.dataset.page;
       document.querySelectorAll(".section").forEach(sec => sec.classList.remove("active"));
       document.getElementById(page).classList.add("active");
+      // Update POTM display when navigating to dashboard
+      if (page === "dashboard") {
+        updatePOTM();
+      }
     });
   });
-
   document.querySelector(".mobile-toggle").addEventListener("click", () => {
     document.querySelector(".nav-menu").classList.toggle("active");
   });
@@ -90,7 +72,6 @@ function setupNavigation() {
    ========================================================== */
 document.getElementById("player-form").addEventListener("submit", (e) => {
   e.preventDefault();
-
   const name = document.getElementById("player-name").value.trim();
   const team = document.getElementById("team").value.trim();
   const runs = parseInt(document.getElementById("runs").value) || 0;
@@ -98,7 +79,6 @@ document.getElementById("player-form").addEventListener("submit", (e) => {
   const fours = parseInt(document.getElementById("fours").value) || 0;
   const sixes = parseInt(document.getElementById("sixes").value) || 0;
   const format = document.getElementById("match-type").value;
-
   const sr = calculateStrikeRate(runs, balls);
 
   players.push({
@@ -116,11 +96,9 @@ document.getElementById("player-form").addEventListener("submit", (e) => {
   updateDashboardStats();
   updateTable();
   updateCharts();
-  populatePOTMDropdown();
+  updatePOTM(); // Update POTM after adding player
   updateLeaderboard("runs");
-
   showToast("Player added successfully!");
-
   e.target.reset();
 });
 
@@ -142,13 +120,10 @@ function stepDown(id) {
 /* ==========================================================
    CUSTOM DROPDOWN ENGINE
    ========================================================== */
-
 function initDropdowns() {
   populateAllCustomDropdowns();
-
   document.addEventListener("click", (e) => {
     const clickedDropdown = e.target.closest(".custom-dropdown");
-    
     document.querySelectorAll(".custom-dropdown").forEach(drop => {
       if (drop !== clickedDropdown) {
         drop.classList.remove("open");
@@ -156,7 +131,6 @@ function initDropdowns() {
         if (list) list.style.display = "none";
       }
     });
-
     if (clickedDropdown) {
       clickedDropdown.classList.toggle("open");
       const list = clickedDropdown.querySelector(".dropdown-list");
@@ -172,14 +146,12 @@ function populateAllCustomDropdowns() {
     const selectId = drop.dataset.for;
     const select = document.getElementById(selectId);
     if (!select) return;
-
     buildCustomDropdown(drop, select);
   });
 }
 
 function buildCustomDropdown(dropdown, select) {
   const selectedOption = select.options[select.selectedIndex];
-  
   dropdown.innerHTML = `
     <div class="dropdown-selected">
       <span>${selectedOption?.textContent || "Select option"}</span>
@@ -187,17 +159,14 @@ function buildCustomDropdown(dropdown, select) {
     </div>
     <div class="dropdown-list"></div>
   `;
-
   const list = dropdown.querySelector(".dropdown-list");
   list.innerHTML = "";
-
   [...select.options].forEach(opt => {
     const item = document.createElement("div");
     item.classList.add("dropdown-item");
     if (opt.value === select.value) item.classList.add("active");
     item.dataset.value = opt.value;
     item.textContent = opt.textContent;
-
     item.addEventListener("click", (e) => {
       e.stopPropagation(); // Prevent event bubbling
       select.value = opt.value;
@@ -208,83 +177,71 @@ function buildCustomDropdown(dropdown, select) {
       dropdown.classList.remove("open");
       list.style.display = "none";
     });
-
     list.appendChild(item);
   });
 }
 
 /* ==========================================================
-   POPULATE PLAYER OF THE MATCH DROPDOWN
+   AUTOMATED PLAYER OF THE MATCH (POTM)
    ========================================================== */
-function populatePOTMDropdown() {
-  const select = document.getElementById("potm-select");
-  if (!select) return;
-  
-  // Store current value
-  const currentValue = select.value;
-  
-  select.innerHTML = `<option value="">-- Select Star Player --</option>`;
-
-  players.forEach((p, i) => {
-    const opt = document.createElement("option");
-    opt.value = i;
-    opt.textContent = `${p.name} (${p.runs} runs, SR ${p.strikeRate})`;
-    select.appendChild(opt);
-  });
-
-  // Restore previous selection if still valid
-  if (currentValue && players[currentValue]) {
-    select.value = currentValue;
-  }
-
-  // Force rebuild the custom dropdown
-  const dropdown = document.querySelector('[data-for="potm-select"]');
-  if (dropdown) {
-    buildCustomDropdown(dropdown, select);
-  }
+function calculatePlayerScore(player) {
+  // A simple scoring system based on runs, strike rate, and boundaries
+  // You can adjust the weights as needed
+  const runsScore = player.runs * 1.0; // 1 point per run
+  const strikeRateScore = parseFloat(player.strikeRate) * 0.5; // 0.5 points per strike rate unit
+  const boundaryScore = (player.fours * 0.5) + (player.sixes * 1.0); // 0.5 for 4s, 1 for 6s
+  return runsScore + strikeRateScore + boundaryScore;
 }
 
-/* ==========================================================
-   PLAYER OF THE MATCH (POTM)
-   ========================================================== */
-function setPlayerOfMatch() {
-  const index = document.getElementById("potm-select").value;
-  const display = document.getElementById("potm-display");
+function findBestPlayer() {
+  if (players.length === 0) return null;
 
-  if (index === "") {
+  let bestPlayer = players[0];
+  let bestScore = calculatePlayerScore(players[0]);
+
+  for (let i = 1; i < players.length; i++) {
+    const currentScore = calculatePlayerScore(players[i]);
+    if (currentScore > bestScore) {
+      bestScore = currentScore;
+      bestPlayer = players[i];
+    }
+  }
+
+  return bestPlayer;
+}
+
+function updatePOTM() {
+  const display = document.getElementById("potm-display");
+  const bestPlayer = findBestPlayer();
+
+  if (!bestPlayer) {
     display.innerHTML = `
       <div class="potm-empty">
         <i class="fas fa-trophy"></i>
-        <p>Select a player to highlight as Player of the Match</p>
+        <p>No players added yet. Add players to see the Best Performer.</p>
       </div>`;
     return;
   }
 
-  const p = players[index];
-
   display.innerHTML = `
     <div class="potm-card">
-      <div class="name">${p.name}</div>
-      <div class="team">${p.team} – ${p.format}</div>
-
+      <div class="name">${bestPlayer.name}</div>
+      <div class="team">${bestPlayer.team} – ${bestPlayer.format}</div>
       <div class="potm-stats">
         <div class="potm-stat">
-          <div class="potm-stat-value">${p.runs}</div>
+          <div class="potm-stat-value">${bestPlayer.runs}</div>
           <div class="potm-stat-label">Runs</div>
         </div>
-
         <div class="potm-stat">
-          <div class="potm-stat-value">${p.balls}</div>
+          <div class="potm-stat-value">${bestPlayer.balls}</div>
           <div class="potm-stat-label">Balls</div>
         </div>
-
         <div class="potm-stat">
-          <div class="potm-stat-value">${p.strikeRate}</div>
+          <div class="potm-stat-value">${bestPlayer.strikeRate}</div>
           <div class="potm-stat-label">Strike Rate</div>
         </div>
-
         <div class="potm-stat">
-          <div class="potm-stat-value">${p.fours + p.sixes}</div>
+          <div class="potm-stat-value">${bestPlayer.fours + bestPlayer.sixes}</div>
           <div class="potm-stat-label">Boundaries</div>
         </div>
       </div>
@@ -328,7 +285,6 @@ function updateTable() {
     if (!p.name.toLowerCase().includes(search)) return;
 
     const tr = document.createElement("tr");
-
     tr.innerHTML = `
       <td>${p.name}</td>
       <td>${p.team}</td>
@@ -347,7 +303,6 @@ function updateTable() {
         </button>
       </td>
     `;
-
     tbody.appendChild(tr);
   });
 }
@@ -401,9 +356,8 @@ function deletePlayer(index) {
   updateDashboardStats();
   updateTable();
   updateCharts();
-  populatePOTMDropdown();
+  updatePOTM(); // Update POTM after deleting player
   updateLeaderboard("runs");
-
   showToast("Player deleted!");
 }
 
@@ -415,7 +369,6 @@ function confirmClearAll() {
     showToast("No players to clear!", "error");
     return;
   }
-
   showConfirmModal(
     "Clear All Data",
     "Are you sure you want to delete ALL player data? This action cannot be undone!",
@@ -429,9 +382,8 @@ function clearAll() {
   updateDashboardStats();
   updateTable();
   updateCharts();
-  populatePOTMDropdown();
+  updatePOTM(); // Update POTM after clearing all
   updateLeaderboard("runs");
-
   showToast("All players cleared!", "error");
 }
 
@@ -440,7 +392,6 @@ function clearAll() {
    ========================================================== */
 function openModal(index) {
   const p = players[index];
-
   document.getElementById("edit-index").value = index;
   document.getElementById("edit-name").value = p.name;
   document.getElementById("edit-team").value = p.team;
@@ -449,9 +400,7 @@ function openModal(index) {
   document.getElementById("edit-fours").value = p.fours;
   document.getElementById("edit-sixes").value = p.sixes;
   document.getElementById("edit-match-type").value = p.format;
-
   populateAllCustomDropdowns();
-
   document.getElementById("edit-modal").classList.add("show");
 }
 
@@ -467,9 +416,7 @@ function closeModal() {
    ========================================================== */
 document.getElementById("edit-form").addEventListener("submit", (e) => {
   e.preventDefault();
-
   const index = document.getElementById("edit-index").value;
-
   const name = document.getElementById("edit-name").value.trim();
   const team = document.getElementById("edit-team").value.trim();
   const runs = parseInt(document.getElementById("edit-runs").value) || 0;
@@ -477,7 +424,6 @@ document.getElementById("edit-form").addEventListener("submit", (e) => {
   const fours = parseInt(document.getElementById("edit-fours").value) || 0;
   const sixes = parseInt(document.getElementById("edit-sixes").value) || 0;
   const format = document.getElementById("edit-match-type").value;
-
   const sr = calculateStrikeRate(runs, balls);
 
   players[index] = {
@@ -495,9 +441,8 @@ document.getElementById("edit-form").addEventListener("submit", (e) => {
   updateDashboardStats();
   updateTable();
   updateCharts();
-  populatePOTMDropdown();
+  updatePOTM(); // Update POTM after editing player
   updateLeaderboard("runs");
-
   closeModal();
   showToast("Player updated!");
 });
@@ -512,17 +457,14 @@ document.getElementById("csv-input").addEventListener("change", function () {
   const reader = new FileReader();
   reader.onload = function (e) {
     const lines = e.target.result.split("\n").map(l => l.trim()).filter(Boolean);
-
     let imported = 0;
+
     lines.forEach((line, idx) => {
       if (idx === 0 && line.toLowerCase().includes("name")) return; // Skip header
-      
       const [name, team, runs, balls, fours, sixes, format] = line.split(",").map(s => s.trim());
-
       if (!name || !format) return;
 
       const sr = calculateStrikeRate(Number(runs) || 0, Number(balls) || 0);
-
       players.push({
         name,
         team: team || "Unknown",
@@ -540,12 +482,10 @@ document.getElementById("csv-input").addEventListener("change", function () {
     updateDashboardStats();
     updateTable();
     updateCharts();
-    populatePOTMDropdown();
+    updatePOTM(); // Update POTM after importing
     updateLeaderboard("runs");
-
     showToast(`CSV imported! ${imported} players added.`);
   };
-
   reader.readAsText(file);
   this.value = ""; // Reset input
 });
@@ -560,28 +500,23 @@ function downloadCSV() {
   }
 
   let csv = "Name,Team,Runs,Balls,Fours,Sixes,Format,Strike Rate\n";
-
   players.forEach(p => {
     csv += `${p.name},${p.team},${p.runs},${p.balls},${p.fours},${p.sixes},${p.format},${p.strikeRate}\n`;
   });
 
   const blob = new Blob([csv], { type: "text/csv" });
   const url = URL.createObjectURL(blob);
-
   const a = document.createElement("a");
   a.href = url;
   a.download = "cricket_players.csv";
   a.click();
-
   URL.revokeObjectURL(url);
-
   showToast("CSV downloaded!");
 }
 
 /* ==========================================================
    ANALYTICS CHARTS (Chart.js)
    ========================================================== */
-
 function updateCharts() {
   if (players.length === 0) {
     if (charts.runs) charts.runs.destroy();
@@ -688,12 +623,10 @@ function updateCharts() {
 /* ==========================================================
    LEADERBOARD RANKING
    ========================================================== */
-
 document.querySelectorAll(".filter-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
-
     updateLeaderboard(btn.dataset.filter);
   });
 });
@@ -702,7 +635,6 @@ function updateLeaderboard(metric = "runs") {
   if (players.length === 0) {
     document.getElementById("leaderboard-list").innerHTML = 
       '<div style="text-align:center;padding:2rem;color:var(--text-muted);">No players added yet</div>';
-    
     // Reset podium
     ["podium-1", "podium-2", "podium-3"].forEach(id => {
       const pod = document.getElementById(id);
@@ -713,7 +645,6 @@ function updateLeaderboard(metric = "runs") {
   }
 
   let sorted = [...players];
-
   if (metric === "runs") {
     sorted.sort((a, b) => b.runs - a.runs);
   } else if (metric === "strike-rate") {
@@ -733,35 +664,29 @@ function updateLeaderboard(metric = "runs") {
   sorted.slice(0, 3).forEach((p, i) => {
     const pod = document.getElementById(podiumIds[i]);
     pod.querySelector(".podium-name").textContent = p.name;
-
     let score;
     if (metric === "runs") score = p.runs;
     else if (metric === "strike-rate") score = p.strikeRate;
     else if (metric === "boundaries") score = p.fours + p.sixes;
     else score = ((p.fours + p.sixes) / (p.balls || 1)).toFixed(2);
-
     pod.querySelector(".podium-score").textContent = score;
   });
 
   /* Leaderboard List */
   const list = document.getElementById("leaderboard-list");
   list.innerHTML = "";
-
   sorted.forEach((p, rank) => {
     const row = document.createElement("div");
     row.classList.add("leaderboard-item");
-
     let score;
     if (metric === "runs") score = p.runs;
     else if (metric === "strike-rate") score = p.strikeRate;
     else if (metric === "boundaries") score = p.fours + p.sixes;
     else score = ((p.fours + p.sixes) / (p.balls || 1)).toFixed(2);
-
     row.innerHTML = `
       <div>${rank + 1}. ${p.name}</div>
       <div><strong>${score}</strong></div>
     `;
-
     list.appendChild(row);
   });
 }
@@ -769,36 +694,29 @@ function updateLeaderboard(metric = "runs") {
 /* ==========================================================
    AI ASSISTANT (Simple Chat Logic)
    ========================================================== */
-
 document.getElementById("ai-form").addEventListener("submit", (e) => {
   e.preventDefault();
-
   const input = document.getElementById("ai-input");
   const text = input.value.trim();
   if (!text) return;
 
   addChatMessage(text, "user");
-
   const response = generateAIResponse(text);
   addChatMessage(response, "ai");
-
   input.value = "";
 });
 
 function addChatMessage(msg, sender) {
   const chat = document.getElementById("chat-messages");
   const div = document.createElement("div");
-
   div.classList.add("message", sender === "ai" ? "ai-message" : "user-message");
   div.textContent = msg;
-
   chat.appendChild(div);
   chat.scrollTop = chat.scrollHeight;
 }
 
 function generateAIResponse(query) {
   query = query.toLowerCase();
-
   if (players.length === 0) {
     return "No player data available yet. Add some players first!";
   }
@@ -807,26 +725,46 @@ function generateAIResponse(query) {
     const sorted = [...players].sort((a, b) => b.runs - a.runs).slice(0, 5);
     return "Top Run Scorers:\n" + sorted.map((p, i) => `${i+1}. ${p.name} - ${p.runs} runs`).join("\n");
   }
-
   if (query.includes("strike")) {
     const sorted = [...players].sort((a, b) => parseFloat(b.strikeRate) - parseFloat(a.strikeRate)).slice(0, 5);
     return "Top Strike Rates:\n" + sorted.map((p, i) => `${i+1}. ${p.name} - ${p.strikeRate} SR`).join("\n");
   }
-
   if (query.includes("boundary") || query.includes("boundaries")) {
     const sorted = [...players]
       .sort((a, b) => (b.fours + b.sixes) - (a.fours + a.sixes))
       .slice(0, 5);
     return "Top Boundary Hitters:\n" + sorted.map((p, i) => `${i+1}. ${p.name} - ${p.fours + p.sixes} boundaries`).join("\n");
   }
-
   if (query.includes("compare")) {
     return "To compare players, view the Analytics section for detailed charts and comparisons!";
   }
-
-  if (query.includes("help") || query.includes("what can you do")) {
-    return "I can help with:\n• Top scorers\n• Strike rate leaders\n• Boundary stats\n• Player comparisons\n\nTry asking: 'Show top 5 scorers' or 'Who has the best strike rate?'";
+  if (query.includes("best") && (query.includes("performer") || query.includes("player"))) {
+      const bestPlayer = findBestPlayer();
+      if (bestPlayer) {
+          const score = calculatePlayerScore(bestPlayer);
+          return `The Best Performer is ${bestPlayer.name} (${bestPlayer.team}) with a calculated score of ${score.toFixed(2)}.`;
+      } else {
+          return "No players added yet.";
+      }
   }
-
-  return "I can help with:\n• Top scorers\n• Strike rate leaders\n• Boundary stats\n• Player comparisons\n\nAsk me something specific!";
+  if (query.includes("help") || query.includes("what can you do")) {
+    return "I can help with:\n• Top scorers\n• Strike rate leaders\n• Boundary stats\n• Player comparisons\n• Identifying the Best Performer\nTry asking: 'Show top 5 scorers' or 'Who is the best performer?'";
+  }
+  return "I can help with:\n• Top scorers\n• Strike rate leaders\n• Boundary stats\n• Player comparisons\n• Identifying the Best Performer\nAsk me something specific!";
 }
+
+/* ==========================================================
+   INITIAL LOAD
+   ========================================================== */
+document.addEventListener("DOMContentLoaded", () => {
+  loadPlayers();
+  updateDashboardStats();
+  updateTable();
+  updateCharts();
+  initDropdowns();
+  setupNavigation();
+  setupSearchFilter();
+  setCurrentYearFooter();
+  updateLeaderboard("runs");
+  updatePOTM(); // Initialize the automated POTM display
+});

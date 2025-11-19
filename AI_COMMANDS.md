@@ -187,6 +187,12 @@ The AI understands various phrasings. You can ask in different ways:
 - `"Team India top scorers"`
 - `"Most sixes in T20"`
 
+### 🌟 **Best Performer**
+- `"Best Performer"`
+- `"Who is the best performer?"`
+- `"Top performer"`
+- `"Best player"`
+
 ### Multi-Criteria
 - `"Players with more than 100 runs"`
 - `"Strike rate above 150"`

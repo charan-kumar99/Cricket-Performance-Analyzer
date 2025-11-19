@@ -22,7 +22,6 @@
           <p>Performance Tracking</p>
         </div>
       </div>
-
       <ul class="nav-menu" role="navigation" aria-label="Main Navigation">
         <li><a href="#dashboard" class="active" data-page="dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
         <li><a href="#add-player" data-page="add-player"><i class="fas fa-user-plus"></i> Add Player</a></li>
@@ -31,11 +30,9 @@
         <li><a href="#leaderboard" data-page="leaderboard"><i class="fas fa-trophy"></i> Leaderboard</a></li>
         <li><a href="#ai-assistant" data-page="ai-assistant"><i class="fas fa-robot"></i> AI Assistant</a></li>
       </ul>
-
       <button class="mobile-toggle" aria-label="Toggle menu"><i class="fas fa-bars"></i></button>
     </div>
   </nav>
-
   <!-- MAIN CONTAINER -->
   <div class="container">
     <!-- HERO -->
@@ -43,7 +40,6 @@
       <h2>Advanced Cricket Analytics</h2>
       <p>Track, analyze, and compare player performance with powerful insights</p>
     </section>
-
     <!-- STATS CARDS -->
     <div class="stats-grid">
       <div class="stat-card">
@@ -51,55 +47,42 @@
         <div class="stat-value" id="total-players">0</div>
         <div class="stat-label">Total Players</div>
       </div>
-
       <div class="stat-card">
         <div class="stat-icon"><i class="fas fa-running"></i></div>
         <div class="stat-value" id="total-runs">0</div>
         <div class="stat-label">Total Runs</div>
       </div>
-
       <div class="stat-card">
         <div class="stat-icon"><i class="fas fa-bolt"></i></div>
         <div class="stat-value" id="avg-strike-rate">0</div>
         <div class="stat-label">Avg Strike Rate</div>
       </div>
-
       <div class="stat-card">
         <div class="stat-icon"><i class="fas fa-baseball-ball"></i></div>
         <div class="stat-value" id="total-boundaries">0</div>
         <div class="stat-label">Total Boundaries</div>
       </div>
     </div>
-
     <!-- DASHBOARD -->
     <section id="dashboard" class="section active">
       <div class="section-header">
         <h3><i class="fas fa-home"></i> Dashboard</h3>
       </div>
-
+      <!-- Removed manual POTM selection, replaced by auto-display -->
       <div class="potm-container">
-        <div class="custom-select-wrapper">
-          <div class="custom-dropdown" data-for="potm-select"></div>
-          <select id="potm-select" class="native-hidden" onchange="setPlayerOfMatch()">
-            <option value="">-- Select Star Player --</option>
-          </select>
-        </div>
-
         <div class="potm-display" id="potm-display">
           <div class="potm-empty">
             <i class="fas fa-trophy"></i>
-            <p>Select a player to highlight as Player of the Match</p>
+            <p>No players added yet. Add players to see the Best Performer.</p>
           </div>
         </div>
       </div>
     </section>
-
     <!-- ADD PLAYER -->
     <section id="add-player" class="section">
       <div class="section-header">
         <h3><i class="fas fa-user-plus"></i> Add Player</h3>
       </div>
-
       <form id="player-form">
         <div class="form-grid">
           <div class="input-group">
@@ -107,13 +90,11 @@
             <label for="player-name">Player Name</label>
             <div class="input-highlight"></div>
           </div>
-
           <div class="input-group">
             <input type="text" id="team" placeholder=" " required>
             <label for="team">Team Name</label>
             <div class="input-highlight"></div>
           </div>
-
           <div class="input-group">
             <input type="number" id="runs" min="0" placeholder=" " required>
             <label for="runs">Runs</label>
@@ -123,7 +104,6 @@
               <div class="spinner-btn" onclick="stepDown('runs')">▼</div>
             </div>
           </div>
-
           <div class="input-group">
             <input type="number" id="balls" min="0" placeholder=" " required>
             <label for="balls">Balls</label>
@@ -133,7 +113,6 @@
               <div class="spinner-btn" onclick="stepDown('balls')">▼</div>
             </div>
           </div>
-
           <div class="input-group">
             <input type="number" id="fours" min="0" placeholder=" " required>
             <label for="fours">Fours</label>
@@ -143,7 +122,6 @@
               <div class="spinner-btn" onclick="stepDown('fours')">▼</div>
             </div>
           </div>
-
           <div class="input-group">
             <input type="number" id="sixes" min="0" placeholder=" " required>
             <label for="sixes">Sixes</label>
@@ -153,7 +131,6 @@
               <div class="spinner-btn" onclick="stepDown('sixes')">▼</div>
             </div>
           </div>
-
           <div class="input-group">
             <div class="custom-dropdown" data-for="match-type"></div>
             <select id="match-type" class="native-hidden">
@@ -164,14 +141,12 @@
             <div class="input-highlight"></div>
           </div>
         </div>
-
         <div class="form-actions">
           <div class="btn-container">
             <button type="submit" class="styled-button">
               <span class="btn-text"><i class="fas fa-user-plus"></i> Add Player</span>
             </button>
           </div>
-
           <div class="btn-container">
             <label class="styled-button">
               <span class="btn-text"><i class="fas fa-file-import"></i> Import CSV</span>
@@ -181,12 +156,10 @@
         </div>
       </form>
     </section>
-
     <!-- STATISTICS -->
     <section id="statistics" class="section">
       <div class="section-header">
         <h3><i class="fas fa-table"></i> Statistics</h3>
-
         <div class="filters">
           <div class="custom-dropdown" data-for="match-filter"></div>
           <select id="match-filter" class="native-hidden">
@@ -195,7 +168,6 @@
             <option value="ODI">ODI</option>
             <option value="Test">Test</option>
           </select>
-
           <!-- Animated Search Box -->
           <div id="search-container">
             <div class="glow"></div>
@@ -204,7 +176,6 @@
             <div class="darkBorderBg"></div>
             <div class="white"></div>
             <div class="border"></div>
-
             <div id="main">
               <input placeholder="Search player" type="text" name="text" class="input" id="search-box"/>
               <div id="input-mask"></div>
@@ -235,7 +206,6 @@
           </div>
         </div>
       </div>
-
       <div class="table-container">
         <table>
           <thead>
@@ -254,14 +224,12 @@
           <tbody id="scorecard-body"></tbody>
         </table>
       </div>
-
       <div class="form-actions">
         <div class="btn-container">
           <button class="styled-button danger" onclick="confirmClearAll()">
             <span class="btn-text"><i class="fas fa-trash"></i> Clear All</span>
           </button>
         </div>
-
         <div class="btn-container">
           <button class="styled-button secondary" onclick="downloadCSV()">
             <span class="btn-text"><i class="fas fa-download"></i> Export CSV</span>
@@ -269,13 +237,11 @@
         </div>
       </div>
     </section>
-
     <!-- ANALYTICS -->
     <section id="analytics" class="section">
       <div class="section-header">
         <h3><i class="fas fa-chart-line"></i> Analytics</h3>
       </div>
-
       <div class="chart-grid">
         <div class="chart-wrapper">
           <canvas id="runsChart"></canvas>
@@ -288,12 +254,10 @@
         </div>
       </div>
     </section>
-
     <!-- LEADERBOARD -->
     <section id="leaderboard" class="section">
       <div class="section-header">
         <h3><i class="fas fa-trophy"></i> Leaderboard</h3>
-
         <div class="leaderboard-filters">
           <button class="filter-btn active" data-filter="runs">Runs</button>
           <button class="filter-btn" data-filter="strike-rate">Strike Rate</button>
@@ -301,7 +265,6 @@
           <button class="filter-btn" data-filter="boundary-percent">Boundary %</button>
         </div>
       </div>
-
       <div class="podium">
         <div class="podium-place second" id="podium-2">
           <div class="podium-rank">2</div>
@@ -309,14 +272,12 @@
           <div class="podium-name">-</div>
           <div class="podium-score">0</div>
         </div>
-
         <div class="podium-place first" id="podium-1">
           <div class="podium-rank">1</div>
           <div class="podium-avatar"><i class="fas fa-user"></i></div>
           <div class="podium-name">-</div>
           <div class="podium-score">0</div>
         </div>
-
         <div class="podium-place third" id="podium-3">
           <div class="podium-rank">3</div>
           <div class="podium-avatar"><i class="fas fa-user"></i></div>
@@ -324,19 +285,15 @@
           <div class="podium-score">0</div>
         </div>
       </div>
-
       <div class="leaderboard-list" id="leaderboard-list"></div>
     </section>
-
     <!-- AI ASSISTANT -->
     <section id="ai-assistant" class="section">
       <div class="section-header">
         <h3><i class="fas fa-robot"></i> AI Assistant</h3>
       </div>
-
       <div class="chat-container">
         <div id="chat-messages"></div>
-
         <form id="ai-form">
           <input type="text" id="ai-input" 
                  placeholder="Ask anything... (e.g., Top 5 scorers, Compare Virat & Rohit)" 
@@ -350,7 +307,6 @@
       </div>
     </section>
   </div>
-
   <!-- FOOTER -->
   <footer class="footer">
     <div class="footer-content">
@@ -358,7 +314,6 @@
         <h4>Cricket Performance Analyzer</h4>
         <p>Advanced analytics platform for tracking and comparing cricket player statistics.</p>
       </div>
-
       <div class="footer-section">
         <h4>Connect With Me</h4>
         <div class="social-links">
@@ -368,7 +323,6 @@
           <a href="mailto:charansuvarna99@gmail.com"><i class="fas fa-envelope"></i></a>
         </div>
       </div>
-
       <div class="footer-section">
         <h4>Quick Links</h4>
         <ul class="footer-links">
@@ -377,13 +331,11 @@
         </ul>
       </div>
     </div>
-
     <div class="footer-bottom">
       <p>&copy; <span id="copyright-year"></span>
-      Cricket Performance Analyzer. Built with <i class="fas fa-heart"></i> by Charan Kumar</p>
+      Cricket Performance Analyzer. Built with <i class="fas fa-heart"></i> by <a href="https://github.com/charan-kumar99" target="_blank">Charan Kumar</a></p>
     </div>
   </footer>
-
   <!-- EDIT MODAL -->
   <div id="edit-modal" class="modal">
     <div class="modal-content">
@@ -391,23 +343,19 @@
         <h3>Edit Player</h3>
         <button class="close-btn-simple" onclick="closeModal()">×</button>
       </div>
-
       <form id="edit-form">
         <input type="hidden" id="edit-index">
-
         <div class="form-grid">
           <div class="input-group">
             <input type="text" id="edit-name" placeholder=" " required>
             <label for="edit-name">Player Name</label>
             <div class="input-highlight"></div>
           </div>
-
           <div class="input-group">
             <input type="text" id="edit-team" placeholder=" " required>
             <label for="edit-team">Team</label>
             <div class="input-highlight"></div>
           </div>
-
           <div class="input-group">
             <input type="number" id="edit-runs" min="0" placeholder=" " required>
             <label for="edit-runs">Runs</label>
@@ -417,7 +365,6 @@
               <div class="spinner-btn" onclick="stepDown('edit-runs')">▼</div>
             </div>
           </div>
-
           <div class="input-group">
             <input type="number" id="edit-balls" min="0" placeholder=" " required>
             <label for="edit-balls">Balls</label>
@@ -427,7 +374,6 @@
               <div class="spinner-btn" onclick="stepDown('edit-balls')">▼</div>
             </div>
           </div>
-
           <div class="input-group">
             <input type="number" id="edit-fours" min="0" placeholder=" " required>
             <label for="edit-fours">Fours</label>
@@ -437,7 +383,6 @@
               <div class="spinner-btn" onclick="stepDown('edit-fours')">▼</div>
             </div>
           </div>
-
           <div class="input-group">
             <input type="number" id="edit-sixes" min="0" placeholder=" " required>
             <label for="edit-sixes">Sixes</label>
@@ -447,7 +392,6 @@
               <div class="spinner-btn" onclick="stepDown('edit-sixes')">▼</div>
             </div>
           </div>
-
           <div class="input-group">
             <div class="custom-dropdown" data-for="edit-match-type"></div>
             <select id="edit-match-type" class="native-hidden">
@@ -458,14 +402,12 @@
             <div class="input-highlight"></div>
           </div>
         </div>
-
         <div class="form-actions">
           <div class="btn-container">
             <button type="submit" class="styled-button">
               <span class="btn-text"><i class="fas fa-save"></i> Save Player</span>
             </button>
           </div>
-
           <div class="btn-container">
             <button type="button" class="styled-button secondary" onclick="closeModal()">
               <span class="btn-text"><i class="fas fa-times"></i> Cancel</span>
@@ -475,7 +417,6 @@
       </form>
     </div>
   </div>
-
   <!-- CONFIRMATION MODAL -->
   <div id="confirm-modal" class="modal">
     <div class="modal-content confirm-modal-content">
@@ -483,19 +424,16 @@
         <h3 id="confirm-title">Confirm Action</h3>
         <button class="close-btn-simple" onclick="closeConfirmModal()">×</button>
       </div>
-      
       <div class="confirm-message">
         <i class="fas fa-exclamation-triangle"></i>
         <p id="confirm-text">Are you sure?</p>
       </div>
-
       <div class="form-actions confirm-actions">
         <div class="btn-container">
           <button class="styled-button" onclick="executeConfirmAction()">
             <span class="btn-text"><i class="fas fa-check"></i> Confirm</span>
           </button>
         </div>
-
         <div class="btn-container">
           <button class="styled-button secondary" onclick="closeConfirmModal()">
             <span class="btn-text"><i class="fas fa-times"></i> Cancel</span>
@@ -504,10 +442,8 @@
       </div>
     </div>
   </div>
-
   <!-- Toast Container -->
   <div id="toast-container" class="toast-container"></div>
-
   <script src="script.js" defer></script>
 </body>
 </html>
