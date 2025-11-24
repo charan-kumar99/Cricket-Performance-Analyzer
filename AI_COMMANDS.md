@@ -2,7 +2,7 @@
 
 **Complete list of all commands you can use with the Cricket Performance Analyzer AI Assistant**
 
----
+> Note: The current in-app AI is intentionally simple. It supports a focused set of queries (top scorers, strike rate leaders, boundary stats, best performer, and a generic help message). The patterns below describe these core capabilities.
 
 ## 📊 **Player Statistics Queries**
 

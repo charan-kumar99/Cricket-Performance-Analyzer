@@ -1,6 +1,6 @@
 # 🏏 Cricket Performance Analyzer Pro
 
-**Version 2.0** - A modern, production-ready cricket statistics tracking and analysis platform with advanced animations
+**Version 2.0** - A modern, production-ready cricket statistics tracking and analysis platform with advanced animations and realistic cricket validations
 
 ![Production Ready](https://img.shields.io/badge/status-production%20ready-success) ![Version](https://img.shields.io/badge/version-2.0.0-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![Animations](https://img.shields.io/badge/animations-advanced-orange)
 
@@ -69,7 +69,7 @@ A sleek, professional web application for tracking, analyzing, and comparing cri
    - Then open http://localhost:8000 in your browser
 
 3. **Start using:**
-   - The onboarding modal will guide you through the features
+   - Open the **Add Player** tab
    - Add your first player to begin tracking statistics
 
 ### System Requirements
@@ -90,11 +90,11 @@ A sleek, professional web application for tracking, analyzing, and comparing cri
    - Player Name (required)
    - Runs (required)
    - Balls faced (required)
-   - Fours, Sixes (optional)
-   - Team Name (optional)
+   - Fours, Sixes (required, used for validation)
+   - Team Name (required)
    - Match Type (T20/ODI/Test)
 3. Click **Add Player**
-4. Strike rate and boundary percentage are calculated automatically
+4. Strike rate is calculated automatically, and innings are validated using real cricket rules (max 6 runs per ball, boundaries cannot exceed balls faced, etc.)
 
 ### Viewing Statistics
 
@@ -116,31 +116,23 @@ A sleek, professional web application for tracking, analyzing, and comparing cri
   - Most Consistent
   - Boundary King
 
-### Comparing Players
-
-1. Go to **Comparison** tab
-2. Select two players from dropdowns
-3. Click **Compare**
-4. View side-by-side statistics in chart form
-
 ### Using AI Assistant
 
 Navigate to **AI Assistant** tab and ask questions:
 
-- `"Best Strike Rate"` - Find player with highest SR
-- `"Top Scorers"` - See top 5 run scorers
-- `"Average Stats"` - View average runs per player
-- `"Most Boundaries"` - Find boundary king
-- `"Compare Virat and Rohit"` - Direct player comparison
-- `"Team India stats"` - Team-specific statistics
+- `"Top scorers"` - See top 5 run scorers
+- `"Best strike rate"` - Find players with highest SR
+- `"Boundary stats"` - Show top boundary hitters
+- `"Best performer"` - Show automatically calculated Player of the Match
+- `"help"` or `"what can you do"` - Show supported query types
 
 ### Import/Export Data
 
 **Import CSV:**
-1. Prepare CSV file with headers: Name,Runs,Balls,Fours,Sixes,MatchType,Team
+1. Prepare CSV file with headers: `Name,Team,Runs,Balls,Fours,Sixes,Format`
 2. Click **Import CSV** in Add Player tab
 3. Select your file
-4. Review any import errors if present
+4. Only innings that pass the cricket validation rules will be imported
 
 **Export CSV:**
 - Go to Statistics tab

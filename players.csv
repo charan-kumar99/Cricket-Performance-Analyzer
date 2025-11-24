@@ -1,50 +1,51 @@
-1. Virat Kohli,82,51,6,3,T20,India,2025-11-16
-2. Rohit Sharma,118,59,12,4,T20,India,2025-11-16
-3. KL Rahul,68,45,8,1,T20,India,2025-11-16
-4. Suryakumar Yadav,117,55,9,9,T20,India,2025-11-16
-5. Hardik Pandya,87,42,5,7,T20,India,2025-11-16
-6. Shubman Gill,61,38,7,2,T20,India,2025-11-16
-7. Rishabh Pant,54,29,4,4,T20,India,2025-11-16
-8. Shreyas Iyer,76,48,6,3,T20,India,2025-11-16
-9. Ravindra Jadeja,33,18,2,2,T20,India,2025-11-16
-10. Axar Patel,29,16,3,1,T20,India,2025-11-16
-11. Deepak Hooda,41,25,4,1,T20,India,2025-11-16
-12. Ishan Kishan,56,34,5,3,T20,India,2025-11-16
-13. Sanju Samson,44,28,3,2,T20,India,2025-11-16
-14. Washington Sundar,22,17,1,1,T20,India,2025-11-16
-15. Tilak Varma,38,24,4,1,T20,India,2025-11-16
-16. Yashasvi Jaiswal,72,40,7,3,T20,India,2025-11-16
-17. Ruturaj Gaikwad,65,39,8,1,T20,India,2025-11-16
-18. Shivam Dube,49,27,3,3,T20,India,2025-11-16
-19. Jasprit Bumrah,8,10,1,0,T20,India,2025-11-16
-20. Mohammed Shami,6,9,0,0,T20,India,2025-11-16
-21. Arshdeep Singh,12,13,1,0,T20,India,2025-11-16
-22. Umran Malik,4,6,0,0,T20,India,2025-11-16
-23. Kuldeep Yadav,10,11,1,0,T20,India,2025-11-16
-24. Yuzvendra Chahal,7,10,0,0,T20,India,2025-11-16
-25. Mohit Sharma,3,5,0,0,T20,India,2025-11-16
-26. Shardul Thakur,15,12,1,1,T20,India,2025-11-16
-27. Deepak Chahar,18,14,2,0,T20,India,2025-11-16
-28. Rahul Tripathi,47,29,4,2,T20,India,2025-11-16
-29. Manish Pandey,52,34,5,1,T20,India,2025-11-16
-30. Dinesh Karthik,28,16,3,1,T20,India,2025-11-16
-31. Varun Chakravarthy,2,5,0,0,T20,India,2025-11-16
-32. Harshal Patel,26,18,2,1,T20,India,2025-11-16
-33. Prasidh Krishna,5,7,0,0,T20,India,2025-11-16
-34. Krunal Pandya,31,20,2,2,T20,India,2025-11-16
-35. Rishi Dhawan,19,13,2,0,T20,India,2025-11-16
-36. Sandeep Sharma,7,6,1,0,T20,India,2025-11-16
-37. Jaydev Unadkat,6,7,0,0,T20,India,2025-11-16
-38. Venkatesh Iyer,58,33,5,3,T20,India,2025-11-16
-39. Abhishek Sharma,69,37,8,2,T20,India,2025-11-16
-40. Rinku Singh,73,34,6,5,T20,India,2025-11-16
-41. Sarfaraz Khan,46,25,5,2,T20,India,2025-11-16
-42. Rajat Patidar,51,32,4,2,T20,India,2025-11-16
-43. Shahrukh Khan,34,19,2,2,T20,India,2025-11-16
-44. Nitish Rana,48,27,4,2,T20,India,2025-11-16
-45. Mayank Agarwal,39,24,4,1,T20,India,2025-11-16
-46. Devdutt Padikkal,42,28,5,1,T20,India,2025-11-16
-47. Wriddhiman Saha,24,17,3,0,T20,India,2025-11-16
-48. Karun Nair,28,20,2,1,T20,India,2025-11-16
-49. Robin Uthappa,33,22,3,1,T20,India,2025-11-16
-50. MS Dhoni,45,32,3,2,T20,India,2025-11-16
+Name,Team,Runs,Balls,Fours,Sixes,Format
+Virat Kohli,India,82,51,6,3,T20
+Rohit Sharma,India,118,59,12,4,T20
+KL Rahul,India,68,45,8,1,T20
+Suryakumar Yadav,India,117,55,9,9,T20
+Hardik Pandya,India,87,42,5,7,T20
+Shubman Gill,India,61,38,7,2,T20
+Rishabh Pant,India,54,29,4,4,T20
+Shreyas Iyer,India,76,48,6,3,T20
+Ravindra Jadeja,India,33,18,2,2,T20
+Axar Patel,India,29,16,3,1,T20
+Deepak Hooda,India,41,25,4,1,T20
+Ishan Kishan,India,56,34,5,3,T20
+Sanju Samson,India,44,28,3,2,T20
+Washington Sundar,India,22,17,1,1,T20
+Tilak Varma,India,38,24,4,1,T20
+Yashasvi Jaiswal,India,72,40,7,3,T20
+Ruturaj Gaikwad,India,65,39,8,1,T20
+Shivam Dube,India,49,27,3,3,T20
+Jasprit Bumrah,India,8,10,1,0,T20
+Mohammed Shami,India,6,9,0,0,T20
+Arshdeep Singh,India,12,13,1,0,T20
+Umran Malik,India,4,6,0,0,T20
+Kuldeep Yadav,India,10,11,1,0,T20
+Yuzvendra Chahal,India,7,10,0,0,T20
+Mohit Sharma,India,3,5,0,0,T20
+Shardul Thakur,India,15,12,1,1,T20
+Deepak Chahar,India,18,14,2,0,T20
+Rahul Tripathi,India,47,29,4,2,T20
+Manish Pandey,India,52,34,5,1,T20
+Dinesh Karthik,India,28,16,3,1,T20
+Varun Chakravarthy,India,2,5,0,0,T20
+Harshal Patel,India,26,18,2,1,T20
+Prasidh Krishna,India,5,7,0,0,T20
+Krunal Pandya,India,31,20,2,2,T20
+Rishi Dhawan,India,19,13,2,0,T20
+Sandeep Sharma,India,7,6,1,0,T20
+Jaydev Unadkat,India,6,7,0,0,T20
+Venkatesh Iyer,India,58,33,5,3,T20
+Abhishek Sharma,India,69,37,8,2,T20
+Rinku Singh,India,73,34,6,5,T20
+Sarfaraz Khan,India,46,25,5,2,T20
+Rajat Patidar,India,51,32,4,2,T20
+Shahrukh Khan,India,34,19,2,2,T20
+Nitish Rana,India,48,27,4,2,T20
+Mayank Agarwal,India,39,24,4,1,T20
+Devdutt Padikkal,India,42,28,5,1,T20
+Wriddhiman Saha,India,24,17,3,0,T20
+Karun Nair,India,28,20,2,1,T20
+Robin Uthappa,India,33,22,3,1,T20
+MS Dhoni,India,45,32,3,2,T20

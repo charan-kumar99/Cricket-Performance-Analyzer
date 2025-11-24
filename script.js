@@ -1,7 +1,3 @@
-/* ==========================================================
-   CRICKET PERFORMANCE ANALYZER – FULL SCRIPT.JS
-   ========================================================== */
-/* ---------- GLOBAL VARIABLES ---------- */
 let players = [];
 let charts = {
   runs: null,
@@ -9,45 +5,209 @@ let charts = {
   boundaries: null
 };
 let confirmCallback = null;
+let deletedPlayers = []; // Undo buffer
+let toastCount = 0; // Limit concurrent toasts
+let cachedElements = {}; // Cache DOM elements
+let searchDebounceTimer = null;
 
-/* ==========================================================
-   UTILITY FUNCTIONS
-   ========================================================== */
+// Generate unique ID
+function generateId() {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2);
+}
+
+// Sanitize text to prevent XSS
+function sanitizeText(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// Escape CSV field
+function escapeCSVField(field) {
+  if (field === null || field === undefined) return '';
+  const str = String(field);
+  if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+    return '"' + str.replace(/"/g, '""') + '"';
+  }
+  return str;
+}
+
+// Validate loaded data
+function validatePlayerData(player) {
+  return player && 
+    typeof player.name === 'string' &&
+    typeof player.team === 'string' &&
+    typeof player.runs === 'number' &&
+    typeof player.balls === 'number' &&
+    typeof player.fours === 'number' &&
+    typeof player.sixes === 'number' &&
+    typeof player.format === 'string' &&
+    player.runs >= 0 && player.balls >= 0 &&
+    player.fours >= 0 && player.sixes >= 0;
+}
+
 function loadPlayers() {
-  const data = localStorage.getItem("players");
-  players = data ? JSON.parse(data) : [];
+  try {
+    const data = localStorage.getItem("players");
+    if (!data) {
+      players = [];
+      return;
+    }
+    const parsed = JSON.parse(data);
+    if (!Array.isArray(parsed)) {
+      players = [];
+      return;
+    }
+    // Validate and filter data
+    players = parsed.filter(validatePlayerData).map(p => ({
+      ...p,
+      id: p.id || generateId() // Add ID if missing
+    }));
+  } catch (e) {
+    console.error('Failed to load players:', e);
+    players = [];
+    showToast('Failed to load data from storage', 'error');
+  }
 }
 
 function savePlayers() {
-  localStorage.setItem("players", JSON.stringify(players));
+  try {
+    localStorage.setItem("players", JSON.stringify(players));
+  } catch (e) {
+    console.error('Failed to save players:', e);
+    if (e.name === 'QuotaExceededError') {
+      showToast('Storage quota exceeded. Please delete some players.', 'error');
+    } else {
+      showToast('Failed to save data', 'error');
+    }
+  }
 }
 
 function calculateStrikeRate(runs, balls) {
   return balls === 0 ? 0 : ((runs / balls) * 100).toFixed(2);
 }
 
+function validatePlayerStats({ runs, balls, fours, sixes, name, team }) {
+  // Check for integers
+  if (!Number.isInteger(runs) || !Number.isInteger(balls) || 
+      !Number.isInteger(fours) || !Number.isInteger(sixes)) {
+    return { valid: false, message: "Runs, balls, 4s and 6s must be whole numbers." };
+  }
+
+  if (runs < 0 || balls < 0 || fours < 0 || sixes < 0) {
+    return { valid: false, message: "Runs, balls, 4s and 6s cannot be negative." };
+  }
+
+  // Max values validation
+  const MAX_RUNS = 500;
+  const MAX_BALLS = 600;
+  const MAX_BOUNDARIES = 100;
+  
+  if (runs > MAX_RUNS) {
+    return { valid: false, message: `Runs cannot exceed ${MAX_RUNS}.` };
+  }
+  if (balls > MAX_BALLS) {
+    return { valid: false, message: `Balls cannot exceed ${MAX_BALLS}.` };
+  }
+  if (fours > MAX_BOUNDARIES || sixes > MAX_BOUNDARIES) {
+    return { valid: false, message: `Boundaries cannot exceed ${MAX_BOUNDARIES} each.` };
+  }
+
+  // Name validation
+  if (name !== undefined) {
+    if (!name || name.length < 2) {
+      return { valid: false, message: "Player name must be at least 2 characters." };
+    }
+    if (name.length > 100) {
+      return { valid: false, message: "Player name cannot exceed 100 characters." };
+    }
+  }
+
+  // Team validation
+  if (team !== undefined) {
+    if (!team || team.length < 2) {
+      return { valid: false, message: "Team name must be at least 2 characters." };
+    }
+    if (team.length > 100) {
+      return { valid: false, message: "Team name cannot exceed 100 characters." };
+    }
+  }
+
+  const boundaries = fours + sixes;
+
+  if (balls === 0 && (runs > 0 || boundaries > 0)) {
+    return { valid: false, message: "A player cannot score runs or boundaries without facing any balls." };
+  }
+
+  if (boundaries > balls) {
+    return { valid: false, message: "Boundaries (4s + 6s) cannot exceed balls faced." };
+  }
+
+  const minRunsFromBoundaries = fours * 4 + sixes * 6;
+  if (runs < minRunsFromBoundaries) {
+    return { valid: false, message: "Total runs cannot be less than runs scored from boundaries." };
+  }
+
+  const maxRunsFromNonBoundaries = (balls - boundaries) * 3;
+  const maxTotalRunsGivenBoundaries = minRunsFromBoundaries + Math.max(0, maxRunsFromNonBoundaries);
+  if (runs > maxTotalRunsGivenBoundaries) {
+    return { valid: false, message: "Given balls and boundaries, total runs are not possible." };
+  }
+
+  return { valid: true };
+}
+
+// Improved toast with limit
 function showToast(message, type = "success") {
+  const MAX_TOASTS = 5;
   const container = document.getElementById("toast-container");
+  
+  // Remove oldest toast if limit reached
+  if (toastCount >= MAX_TOASTS) {
+    const oldestToast = container.querySelector('.toast');
+    if (oldestToast) {
+      oldestToast.remove();
+      toastCount--;
+    }
+  }
+  
   const toast = document.createElement("div");
   toast.classList.add("toast");
   if (type === "error") toast.classList.add("error");
-  toast.innerHTML = `
-    <span>${message}</span>
-    <button class="toast-close" onclick="this.parentElement.remove()">×</button>
-  `;
+  
+  const messageSpan = document.createElement('span');
+  messageSpan.textContent = message; // Safe from XSS
+  
+  const closeBtn = document.createElement('button');
+  closeBtn.classList.add('toast-close');
+  closeBtn.textContent = '×';
+  closeBtn.onclick = () => {
+    toast.remove();
+    toastCount--;
+  };
+  
+  toast.appendChild(messageSpan);
+  toast.appendChild(closeBtn);
   container.appendChild(toast);
-  setTimeout(() => toast.remove(), 4000);
+  toastCount++;
+  
+  setTimeout(() => {
+    if (toast.parentNode) {
+      toast.remove();
+      toastCount--;
+    }
+  }, 4000);
 }
+
 
 function setCurrentYearFooter() {
   document.getElementById("copyright-year").textContent = new Date().getFullYear();
 }
 
-/* ==========================================================
-   NAVIGATION BETWEEN SECTIONS
-   ========================================================== */
 function setupNavigation() {
   const links = document.querySelectorAll(".nav-menu a");
+  const navMenu = document.querySelector(".nav-menu");
+  
   links.forEach(link => {
     link.addEventListener("click", (e) => {
       e.preventDefault();
@@ -56,20 +216,64 @@ function setupNavigation() {
       const page = link.dataset.page;
       document.querySelectorAll(".section").forEach(sec => sec.classList.remove("active"));
       document.getElementById(page).classList.add("active");
-      // Update POTM display when navigating to dashboard
+      
+      // Close mobile menu after navigation
+      if (navMenu.classList.contains("active")) {
+        navMenu.classList.remove("active");
+      }
+      
       if (page === "dashboard") {
         updatePOTM();
       }
     });
   });
+  
   document.querySelector(".mobile-toggle").addEventListener("click", () => {
-    document.querySelector(".nav-menu").classList.toggle("active");
+    navMenu.classList.toggle("active");
   });
 }
 
-/* ==========================================================
-   ADD PLAYER (FORM SUBMISSION)
-   ========================================================== */
+// Keyboard shortcuts
+function setupKeyboardShortcuts() {
+  document.addEventListener('keydown', (e) => {
+    const isInput = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA';
+    
+    // ESC - Close modals
+    if (e.key === 'Escape') {
+      const editModal = document.getElementById('edit-modal');
+      const confirmModal = document.getElementById('confirm-modal');
+      if (editModal && editModal.classList.contains('show')) {
+        closeModal();
+      } else if (confirmModal && confirmModal.classList.contains('show')) {
+        closeConfirmModal();
+      }
+    }
+    
+    // Ctrl/Cmd + K - Focus search
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k' && !isInput) {
+      e.preventDefault();
+      const searchBox = document.getElementById('search-box');
+      if (searchBox) {
+        document.querySelector('[data-page="statistics"]').click();
+        setTimeout(() => searchBox.focus(), 100);
+      }
+    }
+    
+    // Ctrl/Cmd + N - Add new player
+    if ((e.ctrlKey || e.metaKey) && e.key === 'n' && !isInput) {
+      e.preventDefault();
+      document.querySelector('[data-page="add-player"]').click();
+      setTimeout(() => document.getElementById('player-name').focus(), 100);
+    }
+    
+    // Ctrl/Cmd + / - Show shortcuts help
+    if ((e.ctrlKey || e.metaKey) && e.key === '/' && !isInput) {
+      e.preventDefault();
+      showToast('Shortcuts: Ctrl+K (Search), Ctrl+N (New Player), ESC (Close)');
+    }
+  });
+}
+
 document.getElementById("player-form").addEventListener("submit", (e) => {
   e.preventDefault();
   const name = document.getElementById("player-name").value.trim();
@@ -79,9 +283,28 @@ document.getElementById("player-form").addEventListener("submit", (e) => {
   const fours = parseInt(document.getElementById("fours").value) || 0;
   const sixes = parseInt(document.getElementById("sixes").value) || 0;
   const format = document.getElementById("match-type").value;
+
+  const validation = validatePlayerStats({ runs, balls, fours, sixes, name, team });
+  if (!validation.valid) {
+    showToast(validation.message, "error");
+    return;
+  }
+
+  // Check for duplicates (same name, team, format, and stats)
+  const isDuplicate = players.some(p => 
+    p.name === name && p.team === team && p.format === format &&
+    p.runs === runs && p.balls === balls && p.fours === fours && p.sixes === sixes
+  );
+  
+  if (isDuplicate) {
+    showToast("This player with identical stats already exists!", "error");
+    return;
+  }
+
   const sr = calculateStrikeRate(runs, balls);
 
   players.push({
+    id: generateId(),
     name,
     team,
     runs,
@@ -96,15 +319,12 @@ document.getElementById("player-form").addEventListener("submit", (e) => {
   updateDashboardStats();
   updateTable();
   updateCharts();
-  updatePOTM(); // Update POTM after adding player
+  updatePOTM();
   updateLeaderboard("runs");
   showToast("Player added successfully!");
   e.target.reset();
 });
 
-/* ==========================================================
-   CUSTOM NUMBER SPINNER BUTTONS
-   ========================================================== */
 function stepUp(id) {
   const input = document.getElementById(id);
   input.stepUp();
@@ -117,9 +337,6 @@ function stepDown(id) {
   input.dispatchEvent(new Event("input"));
 }
 
-/* ==========================================================
-   CUSTOM DROPDOWN ENGINE
-   ========================================================== */
 function initDropdowns() {
   populateAllCustomDropdowns();
   document.addEventListener("click", (e) => {
@@ -168,7 +385,7 @@ function buildCustomDropdown(dropdown, select) {
     item.dataset.value = opt.value;
     item.textContent = opt.textContent;
     item.addEventListener("click", (e) => {
-      e.stopPropagation(); // Prevent event bubbling
+      e.stopPropagation();
       select.value = opt.value;
       dropdown.querySelector(".dropdown-selected span").textContent = opt.textContent;
       list.querySelectorAll(".dropdown-item").forEach(i => i.classList.remove("active"));
@@ -181,15 +398,10 @@ function buildCustomDropdown(dropdown, select) {
   });
 }
 
-/* ==========================================================
-   AUTOMATED PLAYER OF THE MATCH (POTM)
-   ========================================================== */
 function calculatePlayerScore(player) {
-  // A simple scoring system based on runs, strike rate, and boundaries
-  // You can adjust the weights as needed
-  const runsScore = player.runs * 1.0; // 1 point per run
-  const strikeRateScore = parseFloat(player.strikeRate) * 0.5; // 0.5 points per strike rate unit
-  const boundaryScore = (player.fours * 0.5) + (player.sixes * 1.0); // 0.5 for 4s, 1 for 6s
+  const runsScore = player.runs * 1.0;
+  const strikeRateScore = parseFloat(player.strikeRate) * 0.5;
+  const boundaryScore = (player.fours * 0.5) + (player.sixes * 1.0);
   return runsScore + strikeRateScore + boundaryScore;
 }
 
@@ -214,44 +426,69 @@ function updatePOTM() {
   const display = document.getElementById("potm-display");
   const bestPlayer = findBestPlayer();
 
+  // Clear existing content
+  display.innerHTML = '';
+
   if (!bestPlayer) {
-    display.innerHTML = `
-      <div class="potm-empty">
-        <i class="fas fa-trophy"></i>
-        <p>No players added yet. Add players to see the Best Performer.</p>
-      </div>`;
+    const emptyDiv = document.createElement('div');
+    emptyDiv.className = 'potm-empty';
+    
+    const icon = document.createElement('i');
+    icon.className = 'fas fa-trophy';
+    
+    const text = document.createElement('p');
+    text.textContent = 'No players added yet. Add players to see the Best Performer.';
+    
+    emptyDiv.appendChild(icon);
+    emptyDiv.appendChild(text);
+    display.appendChild(emptyDiv);
     return;
   }
 
-  display.innerHTML = `
-    <div class="potm-card">
-      <div class="name">${bestPlayer.name}</div>
-      <div class="team">${bestPlayer.team} – ${bestPlayer.format}</div>
-      <div class="potm-stats">
-        <div class="potm-stat">
-          <div class="potm-stat-value">${bestPlayer.runs}</div>
-          <div class="potm-stat-label">Runs</div>
-        </div>
-        <div class="potm-stat">
-          <div class="potm-stat-value">${bestPlayer.balls}</div>
-          <div class="potm-stat-label">Balls</div>
-        </div>
-        <div class="potm-stat">
-          <div class="potm-stat-value">${bestPlayer.strikeRate}</div>
-          <div class="potm-stat-label">Strike Rate</div>
-        </div>
-        <div class="potm-stat">
-          <div class="potm-stat-value">${bestPlayer.fours + bestPlayer.sixes}</div>
-          <div class="potm-stat-label">Boundaries</div>
-        </div>
-      </div>
-    </div>
-  `;
+  // Create POTM card safely
+  const card = document.createElement('div');
+  card.className = 'potm-card';
+  
+  const nameDiv = document.createElement('div');
+  nameDiv.className = 'name';
+  nameDiv.textContent = bestPlayer.name;
+  
+  const teamDiv = document.createElement('div');
+  teamDiv.className = 'team';
+  teamDiv.textContent = `${bestPlayer.team} – ${bestPlayer.format}`;
+  
+  const statsDiv = document.createElement('div');
+  statsDiv.className = 'potm-stats';
+  
+  // Helper function to create stat
+  const createStat = (value, label) => {
+    const statDiv = document.createElement('div');
+    statDiv.className = 'potm-stat';
+    
+    const valueDiv = document.createElement('div');
+    valueDiv.className = 'potm-stat-value';
+    valueDiv.textContent = value;
+    
+    const labelDiv = document.createElement('div');
+    labelDiv.className = 'potm-stat-label';
+    labelDiv.textContent = label;
+    
+    statDiv.appendChild(valueDiv);
+    statDiv.appendChild(labelDiv);
+    return statDiv;
+  };
+  
+  statsDiv.appendChild(createStat(bestPlayer.runs, 'Runs'));
+  statsDiv.appendChild(createStat(bestPlayer.balls, 'Balls'));
+  statsDiv.appendChild(createStat(bestPlayer.strikeRate, 'Strike Rate'));
+  statsDiv.appendChild(createStat(bestPlayer.fours + bestPlayer.sixes, 'Boundaries'));
+  
+  card.appendChild(nameDiv);
+  card.appendChild(teamDiv);
+  card.appendChild(statsDiv);
+  display.appendChild(card);
 }
 
-/* ==========================================================
-   UPDATE DASHBOARD STATS
-   ========================================================== */
 function updateDashboardStats() {
   let totalRuns = 0;
   let totalSR = 0;
@@ -270,9 +507,6 @@ function updateDashboardStats() {
   document.getElementById("total-boundaries").textContent = totalBoundaries;
 }
 
-/* ==========================================================
-   UPDATE SCORECARD TABLE
-   ========================================================== */
 function updateTable() {
   const tbody = document.getElementById("scorecard-body");
   tbody.innerHTML = "";
@@ -280,46 +514,74 @@ function updateTable() {
   const filter = document.getElementById("match-filter").value;
   const search = document.getElementById("search-box").value.toLowerCase();
 
-  players.forEach((p, index) => {
+  players.forEach((p) => {
     if (filter !== "all" && p.format !== filter) return;
-    if (!p.name.toLowerCase().includes(search)) return;
+    // Search by name or team
+    if (!p.name.toLowerCase().includes(search) && !p.team.toLowerCase().includes(search)) return;
 
     const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${p.name}</td>
-      <td>${p.team}</td>
-      <td>${p.format}</td>
-      <td>${p.runs}</td>
-      <td>${p.balls}</td>
-      <td>${p.fours}</td>
-      <td>${p.sixes}</td>
-      <td>${p.strikeRate}</td>
-      <td>
-        <button class="action-btn edit-btn" onclick="openModal(${index})">
-          <i class="fas fa-edit"></i>
-        </button>
-        <button class="action-btn delete-btn" onclick="confirmDeletePlayer(${index})">
-          <i class="fas fa-trash"></i>
-        </button>
-      </td>
-    `;
+    
+    // Create cells safely
+    const createCell = (text) => {
+      const td = document.createElement('td');
+      td.textContent = text;
+      return td;
+    };
+    
+    tr.appendChild(createCell(p.name));
+    tr.appendChild(createCell(p.team));
+    tr.appendChild(createCell(p.format));
+    tr.appendChild(createCell(p.runs));
+    tr.appendChild(createCell(p.balls));
+    tr.appendChild(createCell(p.fours));
+    tr.appendChild(createCell(p.sixes));
+    tr.appendChild(createCell(p.strikeRate));
+    
+    // Actions cell
+    const actionsCell = document.createElement('td');
+    
+    const editBtn = document.createElement('button');
+    editBtn.className = 'action-btn edit-btn';
+    editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+    editBtn.onclick = () => openModalById(p.id);
+    
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'action-btn delete-btn';
+    deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+    deleteBtn.onclick = () => confirmDeletePlayerById(p.id);
+    
+    actionsCell.appendChild(editBtn);
+    actionsCell.appendChild(deleteBtn);
+    tr.appendChild(actionsCell);
+    
     tbody.appendChild(tr);
   });
+  
+  // Show empty state if no results
+  if (tbody.children.length === 0) {
+    const tr = document.createElement('tr');
+    const td = document.createElement('td');
+    td.colSpan = 9;
+    td.style.textAlign = 'center';
+    td.style.padding = '2rem';
+    td.textContent = players.length === 0 ? 'No players added yet' : 'No players match your search';
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+  }
 }
 
-/* ==========================================================
-   SEARCH + FILTER SYSTEM
-   ========================================================== */
 function setupSearchFilter() {
-  document.getElementById("search-box").addEventListener("input", updateTable);
+  // Debounced search
+  document.getElementById("search-box").addEventListener("input", () => {
+    clearTimeout(searchDebounceTimer);
+    searchDebounceTimer = setTimeout(updateTable, 300);
+  });
+  
   document.getElementById("match-filter").addEventListener("change", () => {
     updateTable();
   });
 }
 
-/* ==========================================================
-   CONFIRMATION MODAL SYSTEM
-   ========================================================== */
 function showConfirmModal(title, message, callback) {
   document.getElementById("confirm-title").textContent = title;
   document.getElementById("confirm-text").textContent = message;
@@ -339,31 +601,58 @@ function executeConfirmAction() {
   closeConfirmModal();
 }
 
-/* ==========================================================
-   DELETE PLAYER
-   ========================================================== */
-function confirmDeletePlayer(index) {
+// Find player by ID
+function findPlayerById(id) {
+  return players.find(p => p.id === id);
+}
+
+function findPlayerIndexById(id) {
+  return players.findIndex(p => p.id === id);
+}
+
+function confirmDeletePlayerById(id) {
+  const player = findPlayerById(id);
+  if (!player) return;
+  
   showConfirmModal(
     "Delete Player",
-    `Are you sure you want to delete ${players[index].name}? This action cannot be undone.`,
-    () => deletePlayer(index)
+    `Are you sure you want to delete ${player.name}? You can undo this action.`,
+    () => deletePlayerById(id)
   );
 }
 
-function deletePlayer(index) {
+function deletePlayerById(id) {
+  const index = findPlayerIndexById(id);
+  if (index === -1) return;
+  
+  // Store for undo
+  const deletedPlayer = players[index];
+  deletedPlayers.push(deletedPlayer);
+  if (deletedPlayers.length > 10) deletedPlayers.shift(); // Keep last 10
+  
   players.splice(index, 1);
   savePlayers();
   updateDashboardStats();
   updateTable();
   updateCharts();
-  updatePOTM(); // Update POTM after deleting player
+  updatePOTM();
   updateLeaderboard("runs");
-  showToast("Player deleted!");
+  showToast("Player deleted! Refresh page to undo if needed.");
 }
 
-/* ==========================================================
-   CLEAR ALL PLAYERS
-   ========================================================== */
+// Legacy functions for backwards compatibility
+function confirmDeletePlayer(index) {
+  if (players[index]) {
+    confirmDeletePlayerById(players[index].id);
+  }
+}
+
+function deletePlayer(index) {
+  if (players[index]) {
+    deletePlayerById(players[index].id);
+  }
+}
+
 function confirmClearAll() {
   if (players.length === 0) {
     showToast("No players to clear!", "error");
@@ -382,17 +671,16 @@ function clearAll() {
   updateDashboardStats();
   updateTable();
   updateCharts();
-  updatePOTM(); // Update POTM after clearing all
+  updatePOTM();
   updateLeaderboard("runs");
   showToast("All players cleared!", "error");
 }
 
-/* ==========================================================
-   OPEN EDIT MODAL
-   ========================================================== */
-function openModal(index) {
-  const p = players[index];
-  document.getElementById("edit-index").value = index;
+function openModalById(id) {
+  const p = findPlayerById(id);
+  if (!p) return;
+  
+  document.getElementById("edit-index").value = p.id; // Store ID, not index
   document.getElementById("edit-name").value = p.name;
   document.getElementById("edit-team").value = p.team;
   document.getElementById("edit-runs").value = p.runs;
@@ -404,19 +692,28 @@ function openModal(index) {
   document.getElementById("edit-modal").classList.add("show");
 }
 
-/* ==========================================================
-   CLOSE MODAL
-   ========================================================== */
+// Legacy support
+function openModal(index) {
+  if (players[index]) {
+    openModalById(players[index].id);
+  }
+}
+
 function closeModal() {
   document.getElementById("edit-modal").classList.remove("show");
 }
 
-/* ==========================================================
-   SAVE EDITED PLAYER
-   ========================================================== */
 document.getElementById("edit-form").addEventListener("submit", (e) => {
   e.preventDefault();
-  const index = document.getElementById("edit-index").value;
+  const playerId = document.getElementById("edit-index").value;
+  const index = findPlayerIndexById(playerId);
+  
+  if (index === -1) {
+    showToast("Player not found!", "error");
+    closeModal();
+    return;
+  }
+  
   const name = document.getElementById("edit-name").value.trim();
   const team = document.getElementById("edit-team").value.trim();
   const runs = parseInt(document.getElementById("edit-runs").value) || 0;
@@ -424,9 +721,17 @@ document.getElementById("edit-form").addEventListener("submit", (e) => {
   const fours = parseInt(document.getElementById("edit-fours").value) || 0;
   const sixes = parseInt(document.getElementById("edit-sixes").value) || 0;
   const format = document.getElementById("edit-match-type").value;
+
+  const validation = validatePlayerStats({ runs, balls, fours, sixes, name, team });
+  if (!validation.valid) {
+    showToast(validation.message, "error");
+    return;
+  }
+
   const sr = calculateStrikeRate(runs, balls);
 
   players[index] = {
+    ...players[index], // Preserve ID
     name,
     team,
     runs,
@@ -441,15 +746,12 @@ document.getElementById("edit-form").addEventListener("submit", (e) => {
   updateDashboardStats();
   updateTable();
   updateCharts();
-  updatePOTM(); // Update POTM after editing player
+  updatePOTM();
   updateLeaderboard("runs");
   closeModal();
   showToast("Player updated!");
 });
 
-/* ==========================================================
-   CSV IMPORT
-   ========================================================== */
 document.getElementById("csv-input").addEventListener("change", function () {
   const file = this.files[0];
   if (!file) return;
@@ -458,20 +760,48 @@ document.getElementById("csv-input").addEventListener("change", function () {
   reader.onload = function (e) {
     const lines = e.target.result.split("\n").map(l => l.trim()).filter(Boolean);
     let imported = 0;
+    const errors = [];
 
     lines.forEach((line, idx) => {
-      if (idx === 0 && line.toLowerCase().includes("name")) return; // Skip header
-      const [name, team, runs, balls, fours, sixes, format] = line.split(",").map(s => s.trim());
-      if (!name || !format) return;
+      if (idx === 0 && line.toLowerCase().includes("name")) return;
+      
+      // Better CSV parsing (handles quoted fields)
+      const fields = line.match(/('([^']*)'|"([^"]*)"|[^,]+)/g) || [];
+      const [name, team, runs, balls, fours, sixes, format] = fields.map(s => s.trim().replace(/^[""]/, '').replace(/[""]$/, ''));
+      
+      if (!name || !format) {
+        errors.push(`Line ${idx + 1}: Missing name or format`);
+        return;
+      }
 
-      const sr = calculateStrikeRate(Number(runs) || 0, Number(balls) || 0);
+      const runsVal = Number(runs) || 0;
+      const ballsVal = Number(balls) || 0;
+      const foursVal = Number(fours) || 0;
+      const sixesVal = Number(sixes) || 0;
+
+      const validation = validatePlayerStats({ 
+        runs: runsVal, 
+        balls: ballsVal, 
+        fours: foursVal, 
+        sixes: sixesVal,
+        name,
+        team: team || "Unknown"
+      });
+      
+      if (!validation.valid) {
+        errors.push(`Line ${idx + 1}: ${validation.message}`);
+        return;
+      }
+
+      const sr = calculateStrikeRate(runsVal, ballsVal);
       players.push({
+        id: generateId(),
         name,
         team: team || "Unknown",
-        runs: Number(runs) || 0,
-        balls: Number(balls) || 0,
-        fours: Number(fours) || 0,
-        sixes: Number(sixes) || 0,
+        runs: runsVal,
+        balls: ballsVal,
+        fours: foursVal,
+        sixes: sixesVal,
         format,
         strikeRate: sr
       });
@@ -482,41 +812,23 @@ document.getElementById("csv-input").addEventListener("change", function () {
     updateDashboardStats();
     updateTable();
     updateCharts();
-    updatePOTM(); // Update POTM after importing
+    updatePOTM();
     updateLeaderboard("runs");
-    showToast(`CSV imported! ${imported} players added.`);
+    
+    let message = `CSV imported! ${imported} players added.`;
+    if (errors.length > 0) {
+      message += ` ${errors.length} errors encountered.`;
+      console.log('CSV Import Errors:', errors);
+      showToast(message, errors.length > imported ? 'error' : 'success');
+    } else {
+      showToast(message);
+    }
   };
   reader.readAsText(file);
-  this.value = ""; // Reset input
+  this.value = "";
 });
 
-/* ==========================================================
-   CSV EXPORT
-   ========================================================== */
-function downloadCSV() {
-  if (players.length === 0) {
-    showToast("No data to export!", "error");
-    return;
-  }
 
-  let csv = "Name,Team,Runs,Balls,Fours,Sixes,Format,Strike Rate\n";
-  players.forEach(p => {
-    csv += `${p.name},${p.team},${p.runs},${p.balls},${p.fours},${p.sixes},${p.format},${p.strikeRate}\n`;
-  });
-
-  const blob = new Blob([csv], { type: "text/csv" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "cricket_players.csv";
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast("CSV downloaded!");
-}
-
-/* ==========================================================
-   ANALYTICS CHARTS (Chart.js)
-   ========================================================== */
 function updateCharts() {
   if (players.length === 0) {
     if (charts.runs) charts.runs.destroy();
@@ -530,7 +842,6 @@ function updateCharts() {
   const strikeRates = players.map(p => parseFloat(p.strikeRate));
   const boundaries = players.map(p => p.fours + p.sixes);
 
-  /* Runs Chart */
   if (charts.runs) charts.runs.destroy();
   charts.runs = new Chart(document.getElementById("runsChart"), {
     type: "bar",
@@ -559,7 +870,6 @@ function updateCharts() {
     }
   });
 
-  /* Strike Rate Chart */
   if (charts.strike) charts.strike.destroy();
   charts.strike = new Chart(document.getElementById("strikeChart"), {
     type: "line",
@@ -590,7 +900,6 @@ function updateCharts() {
     }
   });
 
-  /* Boundaries Chart */
   if (charts.boundaries) charts.boundaries.destroy();
   charts.boundaries = new Chart(document.getElementById("boundaryChart"), {
     type: "bar",
@@ -620,9 +929,6 @@ function updateCharts() {
   });
 }
 
-/* ==========================================================
-   LEADERBOARD RANKING
-   ========================================================== */
 document.querySelectorAll(".filter-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
@@ -635,7 +941,6 @@ function updateLeaderboard(metric = "runs") {
   if (players.length === 0) {
     document.getElementById("leaderboard-list").innerHTML = 
       '<div style="text-align:center;padding:2rem;color:var(--text-muted);">No players added yet</div>';
-    // Reset podium
     ["podium-1", "podium-2", "podium-3"].forEach(id => {
       const pod = document.getElementById(id);
       pod.querySelector(".podium-name").textContent = "-";
@@ -659,7 +964,6 @@ function updateLeaderboard(metric = "runs") {
     });
   }
 
-  /* Update Podium */
   const podiumIds = ["podium-1", "podium-2", "podium-3"];
   sorted.slice(0, 3).forEach((p, i) => {
     const pod = document.getElementById(podiumIds[i]);
@@ -672,7 +976,6 @@ function updateLeaderboard(metric = "runs") {
     pod.querySelector(".podium-score").textContent = score;
   });
 
-  /* Leaderboard List */
   const list = document.getElementById("leaderboard-list");
   list.innerHTML = "";
   sorted.forEach((p, rank) => {
@@ -691,9 +994,6 @@ function updateLeaderboard(metric = "runs") {
   });
 }
 
-/* ==========================================================
-   AI ASSISTANT (Simple Chat Logic)
-   ========================================================== */
 document.getElementById("ai-form").addEventListener("submit", (e) => {
   e.preventDefault();
   const input = document.getElementById("ai-input");
@@ -753,9 +1053,6 @@ function generateAIResponse(query) {
   return "I can help with:\n• Top scorers\n• Strike rate leaders\n• Boundary stats\n• Player comparisons\n• Identifying the Best Performer\nAsk me something specific!";
 }
 
-/* ==========================================================
-   INITIAL LOAD
-   ========================================================== */
 document.addEventListener("DOMContentLoaded", () => {
   loadPlayers();
   updateDashboardStats();
@@ -766,5 +1063,5 @@ document.addEventListener("DOMContentLoaded", () => {
   setupSearchFilter();
   setCurrentYearFooter();
   updateLeaderboard("runs");
-  updatePOTM(); // Initialize the automated POTM display
+  updatePOTM();
 });
