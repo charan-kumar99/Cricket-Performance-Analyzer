@@ -2,8 +2,6 @@
 
 **Version 2.0** - A modern, production-ready cricket statistics tracking and analysis platform with advanced animations and realistic cricket validations
 
-![Production Ready](https://img.shields.io/badge/status-production%20ready-success) ![Version](https://img.shields.io/badge/version-2.0.0-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![Animations](https://img.shields.io/badge/animations-advanced-orange)
-
 A sleek, professional web application for tracking, analyzing, and comparing cricket player statistics with real-time calculations, interactive charts, AI-powered insights, comprehensive performance tracking, and stunning visual animations. Built with modern web technologies featuring multiple font families and smooth transitions throughout.
 
 ---
@@ -266,12 +264,6 @@ Contributions, issues, and feature requests are welcome!
 ## 📬 Connect
 
 **Developer:** Charan Kumar
-
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/charan-kumar-9b20a8378)
-[![GitHub](https://img.shields.io/badge/GitHub-Follow-black?style=for-the-badge&logo=github)](https://github.com/charan-kumar99)
-[![Instagram](https://img.shields.io/badge/Instagram-Follow-E4405F?style=for-the-badge&logo=instagram)](https://www.instagram.com/chanu_xd/)
-[![Email](https://img.shields.io/badge/Email-Contact-red?style=for-the-badge&logo=gmail)](mailto:charansuvarna99@gmail.com)
-
 ---
 
 ## 📝 License
