@@ -1,0 +1,19 @@
+# IDEs and Editors
+.idea/
+.vscode/
+.qodo/
+
+# Operating System Files
+Thumbs.db
+.DS_Store
+
+# Local configuration/data
+players.csv
+node_modules/
+dist/
+build/
+*.log
+
+# Environment variables
+.env
+.env.local
