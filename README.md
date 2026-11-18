@@ -69,6 +69,8 @@ Cricket-Performance-Analyzer/
 ├── script.js          # Core logic, AI assistant, and Chart.js integration
 ├── style.css          # Modern styling and animations
 ├── players.csv        # Sample data for import testing
+├── manifest.json      # PWA web app manifest
+├── sw.js              # Service Worker for offline capabilities
 ├── AI_COMMANDS.md     # Detailed AI assistant command reference
 ├── .gitignore         # Git exclusion rules
 └── README.md          # Project documentation
